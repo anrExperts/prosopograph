@@ -72,7 +72,7 @@ declare
 function eac2html($node as node()*, $options as map(*)) as item()* {
   <article>{
     getIdentity($node/eac:cpfDescription/eac:identity, $options),
-    getDescription($node/eac:cpfDescription/eac:description, $options)
+    if($node/eac:cpfDescription/eac:description) then getDescription($node/eac:cpfDescription/eac:description, $options)
   }</article>
 };
 

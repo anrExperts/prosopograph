@@ -219,7 +219,7 @@ function putBiography($param, $referer) {
   return
     if ($param/*/@xml:id) then
       let $location := fn:analyze-string($referer, 'bio/biographies/(.+?)/modify')//fn:group[@nr='1']
-      return db:replace('bio', 'bio/biographies/'|| $location ||'.xml', $param)
+      return db:replace('bio', 'biographies/'|| $location ||'.xml', $param)
     else
       let $type := switch ($param//eac:identity/eac:entityType/@value)
         case 'person' return 'person'

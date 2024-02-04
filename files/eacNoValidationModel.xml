@@ -17,7 +17,7 @@
         </xf:action>
     </xf:submission>-->
 
-    <xf:submission id="noValidationSubmission" ref="instance('eacNoValidation')" method="put" resource="/xpr/biographies/put" replace="none">
+    <xf:submission id="noValidationSubmission" ref="instance('eacNoValidation')" method="put" resource="/bio/biographies/put" replace="none">
         <xf:action ev:event="xforms-submit">
             <!-- @maintenanceStatus -->
             <xf:setvalue if="instance('eacNoValidation')//eac:control/@maintenanceStatus = 'new'" ref="eac:control/@maintenanceStatus" value="'revised'"/>
