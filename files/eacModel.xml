@@ -1,0 +1,932 @@
+<xf:model id="entity" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+
+    <xf:action ev:event="xforms-ready">
+        <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@standardDate)]">
+            <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@standardDate)]"
+                       origin="instance('eacDates')/eac:date/@standardDate"/>
+        </xf:action>
+        <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notAfter)]">
+            <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notAfter)]"
+                       origin="instance('eacDates')/eac:date/@notAfter"/>
+        </xf:action>
+        <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notBefore)]">
+            <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notBefore)]"
+                       origin="instance('eacDates')/eac:date/@notBefore"/>
+        </xf:action>
+
+        <xf:insert if="@xml:id" context="." nodeset="eac:control/eac:maintenanceHistory/eac:maintenanceEvent" at="1" position="before" origin="instance('eacMaintenanceEvent')/eac:maintenanceEvent"/>
+        <xf:send submission="getData"/>
+    </xf:action>
+
+    <xf:submission id="getData" ref="instance('getAgent')/param" method="get" resource="/bio/xforms" replace="instance" instance="getAgent" targetref="agent"/>
+
+    <xf:instance id="eacInstance" src="/bio/files/_eacInstance.xml"/>
+
+    <!--<xf:instance id="xprEntities" src="/bio/entities"/>-->
+
+    <xf:instance id="getAgent">
+        <data xmlns="">
+            <param>getAgent</param>
+            <agent/>
+        </data>
+    </xf:instance>
+
+    <xf:bind nodeset="instance('eacInstance')/eac:control/@maintenanceStatus" required="true()"/>
+    <!--<xf:bind nodeset="instance('eacInstance')/eac:control/eac:recordId" required="true()"/>-->
+    <xf:bind nodeset="instance('eacInstance')/eac:control/eac:maintenanceAgency" constraint="eac:agencyName | eac:agencyCode"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:control/eac:maintenanceHistory/eac:maintenanceEvent/@maintenanceEventType" required="true()"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:control/eac:maintenanceHistory/eac:maintenanceEvent/eac:agent/@agentType" required="true()"/>
+    <!-- <xf:bind nodeset="instance('eacInstance')/eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/eac:agent" calculate="instance('getAgent')/agent"/> -->
+
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:identity" constraint="eac:entityType/@value and *[self::eac:nameEntry or self::eac:nameEntrySet]"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:identity/eac:entityType/@value" required="true()"/>
+
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:relations/eac:relation/eac:targetEntity/eac:part/@localType" readonly="true()"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:relations/eac:relation/eac:targetEntity/eac:part[@localType='xprRef']" readonly="true()"/>
+
+    <!--@rmq eac:part "cannot be empty and requires at least one non-whitespace character, such as a hyphen, if no actual name can be given." -->
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:identity//eac:part" type="eac:part"/>
+    <xs:schema targetNamespace="https://archivists.org/ns/eac/v2">
+        <xs:simpleType name="part">
+            <xs:restriction base="xs:string">
+                <xs:pattern value="(.|\n|\r)*\S(.|\n|\r)*"/>
+            </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType name="datation">
+            <xs:restriction base="xs:string">
+                <xs:pattern value="((\d{4})(-(0[13578]|1[02])(-(0[1-9]|[12][0-9]|3[01]))?)?)|((\d{4})(-02(-(0[1-9]|[12][0-9]))?)?)|((\d{4})(-(0[469]|11)(-(0[1-9]|[12][0-9]|30))?)?)"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:schema>
+
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:description/eac:places/eac:place" constraint="eac:placeRole or eac:placeName or eac:address"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:description/eac:biogHist/eac:chronList/eac:chronItem" constraint="(*[1][self::eac:date or self::eac:dateRange or self::eac:dateSet] and  *[2][self::eac:event or self::eac:chronItemSet]) or (*[1][self::eac:date or self::eac:dateRange or self::eac:dateSet] and  *[2][self::eac:event or self::eac:chronItemSet] and *[3][self::eac:place])"/>
+
+    <!--   class="{if(is-valid(.), 'valid', 'invalid')}" -->
+    <!-- Dates -->
+    <xf:bind nodeset="instance('eacInstance')//@standardDateTime" type="xf:dateTime"/>
+    <xf:bind nodeset="instance('eacInstance')//eac:dateSet" constraint="count(*) > 1"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:description/eac:existDates" constraint="eac:date or eac:dateRange or eac:dateSet"/>
+    <xf:bind nodeset="instance('eacInstance')//@standardDate" relevant="parent::*[@notAfter=''][@notBefore='']" type="eac:datation"/>
+    <xf:bind nodeset="instance('eacInstance')//@notBefore" relevant="parent::*[@notAfter=''][@standardDate='']" type="eac:datation"/>
+    <xf:bind nodeset="instance('eacInstance')//@notAfter" relevant="parent::*[@notBefore=''][@standardDate='']" type="eac:datation"/>
+
+    <xf:instance id="eacMaintenanceAgency">
+        <maintenanceAgency xmlns="https://archivists.org/ns/eac/v2">
+            <agencyCode/>
+            <agencyName/>
+            <otherAgencyCode/>
+            <descriptiveNote>
+                <p></p>
+            </descriptiveNote>
+        </maintenanceAgency>
+    </xf:instance>
+
+    <xf:instance id="eacMaintenanceEvent">
+        <maintenanceHistory xmlns="https://archivists.org/ns/eac/v2">
+            <maintenanceEvent maintenanceEventType="">
+                <agent agentType=""/>
+                <eventDateTime standardDateTime=""/>
+                <eventDescription/>
+            </maintenanceEvent>
+        </maintenanceHistory>
+
+    </xf:instance>
+
+    <xf:instance id="eacSources">
+        <control xmlns="https://archivists.org/ns/eac/v2">
+            <sources>
+                <source id="">
+                    <reference href=""/>
+                    <citedRange unit="page"/>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </source>
+            </sources>
+        </control>
+    </xf:instance>
+
+    <xf:instance id="eacIdentity">
+        <identity xmlns="https://archivists.org/ns/eac/v2">
+            <entityType value=""/>
+            <nameEntry status="" preferredForm="" sourceReference="">
+                <part localType=""></part>
+            </nameEntry>
+            <nameEntrySet sourceReference="">
+                <nameEntry status="" preferredForm="" sourceReference="">
+                    <part localType=""></part>
+                </nameEntry>
+                <nameEntry status="" preferredForm="" sourceReference="">
+                    <part localType=""></part>
+                </nameEntry>
+            </nameEntrySet>
+            <otherEntityTypes>
+                <otherEntityType>
+                    <term></term>
+                </otherEntityType>
+            </otherEntityTypes>
+            <identityId target=""/>
+            <descriptiveNote>
+                <p></p>
+            </descriptiveNote>
+        </identity>
+    </xf:instance>
+
+    <xf:instance id="eacDates">
+        <dates xmlns="https://archivists.org/ns/eac/v2">
+            <useDates/>
+            <existDates/>
+            <date certainty="" standardDate="" notBefore="" notAfter="" sourceReference=""/>
+            <dateRange/>
+            <fromDate certainty="" standardDate="" notBefore="" notAfter="" status="" sourceReference=""/>
+            <toDate certainty="" standardDate="" notBefore="" notAfter="" status="" sourceReference=""/>
+            <dateSet/>
+        </dates>
+    </xf:instance>
+
+    <xf:instance id="eacDescription">
+        <cpfDescription xmlns="https://archivists.org/ns/eac/v2">
+            <description/>
+        </cpfDescription>
+    </xf:instance>
+
+    <xf:instance id="eacFunctions">
+        <description xmlns="https://archivists.org/ns/eac/v2">
+            <functions>
+                <function localType="" sourceReference="">
+                    <term/>
+                    <!--optionnal (all below)-->
+                    <!--<date/> | <dateRange/> | <dateSet/>-->
+                    <!--<placeName sourceReference=""/>-->
+                    <placeName/>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </function>
+            </functions>
+        </description>
+    </xf:instance>
+
+    <xf:instance id="eacOccupations">
+        <description xmlns="https://archivists.org/ns/eac/v2">
+            <occupations>
+                <occupation localType="" sourceReference="">
+                    <term></term>
+                    <!--optionnal (all below)-->
+                    <!--<date/> | <dateRange/> | <dateSet/>-->
+                    <placeName sourceReference=""/>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </occupation>
+            </occupations>
+        </description>
+    </xf:instance>
+
+    <xf:instance id="eacPlaces">
+        <description xmlns="https://archivists.org/ns/eac/v2">
+            <places>
+                <place sourceReference=""/>
+                <descriptiveNote>
+                    <p></p>
+                </descriptiveNote>
+            </places>
+        </description>
+    </xf:instance>
+
+    <xf:instance id="eacPlace">
+        <places xmlns="https://archivists.org/ns/eac/v2">
+            <place sourceReference="">
+                <placeName></placeName>
+                <placeRole></placeRole>
+                <address>
+                    <addressLine></addressLine>
+                </address>
+                <!-- <date/> | <dateRange/> | <dateSet/> -->
+                <descriptiveNote>
+                    <p></p>
+                </descriptiveNote>
+            </place>
+        </places>
+    </xf:instance>
+
+    <xf:instance id="eacBiogHist">
+        <description xmlns="https://archivists.org/ns/eac/v2">
+            <biogHist>
+                <head/>
+                <abstract/>
+                <!-- one or more -->
+                <chronList>
+                    <chronItem id="" sourceReference="" localType="">
+                        <date certainty="" standardDate="" notBefore="" notAfter="" sourceReference=""/>
+                        <event/>
+                        <place>
+                            <placeName/>
+                        </place>
+                    </chronItem>
+                </chronList>
+                <list/>
+                <p/>
+            </biogHist>
+        </description>
+    </xf:instance>
+
+    <xf:instance id="eacChronItem">
+        <chronList xmlns="https://archivists.org/ns/eac/v2">
+            <chronItem id="" sourceReference=""  localType="">
+                <date certainty="" standardDate="" notBefore="" notAfter="" sourceReference=""/>
+                <event/>
+                <place>
+                    <placeName/>
+                </place>
+            </chronItem>
+        </chronList>
+    </xf:instance>
+
+    <xf:instance id="eacChronItemSet">
+        <chronItem xmlns="https://archivists.org/ns/eac/v2" sourceReference="">
+            <chronItemSet>
+                <event localType=""/>
+                <event localType=""/>
+                <place/>
+            </chronItemSet>
+        </chronItem>
+    </xf:instance>
+
+    <xf:instance id="eacRelations">
+        <cpfDescription xmlns="https://archivists.org/ns/eac/v2">
+            <relations>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="">
+                        <part localType=""/>
+                    </targetEntity>
+                    <relationType id="" valueURI="" vocabularySource="" vocabularySourceURI="" sourceReference=""/>
+                    <targetRole target=""/>
+                </relation>
+            </relations>
+        </cpfDescription>
+    </xf:instance>
+
+    <xf:instance id="eacRelation">
+        <relations xmlns="https://archivists.org/ns/eac/v2">
+            <relation target="" sourceReference="">
+                <targetEntity targetType="">
+                    <part localType=""></part>
+                </targetEntity>
+                <!--<date/> | <dateRange/> | <dateSet/>-->
+                <!-- repeatable -->
+                <place></place>
+                <relationType id="" valueURI="" vocabularySource="" vocabularySourceURI="" sourceReference=""/>
+                <targetRole target=""></targetRole>
+                <descriptiveNote>
+                    <p></p>
+                </descriptiveNote>
+            </relation>
+        </relations>
+    </xf:instance>
+
+    <xf:instance id="eacRelations4Reception">
+        <cpfDescription xmlns="https://archivists.org/ns/eac/v2">
+            <relations>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#isSuccessorOf" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:isSuccessorOf</relationType>
+                    <targetRole target="">prédécesseur</targetRole>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
+                    <targetRole target="">témoin</targetRole>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
+                    <targetRole target="">témoin</targetRole>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
+                    <targetRole target="">témoin</targetRole>
+                    <descriptiveNote>
+                        <p></p>
+                    </descriptiveNote>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+                <relation target="" sourceReference="">
+                    <targetEntity targetType="person">
+                        <part localType="full"/>
+                        <part localType="status"/>
+                        <part localType="occupationType"/>
+                        <part localType="age"/>
+                        <part localType="address"/>
+                        <part localType="origPlace"/>
+                        <part localType="xprRef"/>
+                    </targetEntity>
+                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
+                    <targetRole target="">examinateur</targetRole>
+                </relation>
+            </relations>
+        </cpfDescription>
+    </xf:instance>
+
+    <!-- ETC -->
+    <xf:instance id="relationTypes">
+        <relations xmlns="">
+            <!-- Ric-o -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasChild">
+                <label>a pour enfant</label>
+                <value>rico:hasChild</value>
+                <roles>
+                    <role>fille</role>
+                    <role>fils</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isChildOf">
+                <label>est l’enfant de</label>
+                <value>rico:isChildOf</value>
+                <roles>
+                    <role>père</role>
+                    <role>mère</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadSpouse">
+                <label>a ou avait pour époux/épouse</label>
+                <value>rico:hasOrHadSpouse</value>
+                <roles>
+                    <role>époux</role>
+                    <role>épouse</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasSibling">
+                <label>a pour frère/sœur</label>
+                <value>rico:hasSibling</value>
+                <roles>
+                    <role>frère</role>
+                    <role>sœur</role>
+                    <role>demi-frère</role>
+                    <role>demi-sœur</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasDescendant">
+                <label>a pour descendant</label>
+                <value>rico:hasDescendant</value>
+                <roles>
+                    <role>petit-fils</role>
+                    <role>petite-fille</role>
+                    <role>arrière-petit-fils</role>
+                    <role>arrière-petite-fille</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasAncestor">
+                <label>a pour ascendant</label>
+                <value>rico:hasAncestor</value>
+                <roles>
+                    <role>grand-père</role>
+                    <role>grand-mère</role>
+                    <role>arrière-grand-père</role>
+                    <role>arrière-grand-mère</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasFamilyAssociationWith">
+                <label>a une relation familiale avec</label>
+                <value>rico:hasFamilyAssociationWith</value>
+                <roles>
+                    <role>oncle</role>
+                    <role>tante</role>
+                    <role>cousin</role>
+                    <role>cousine</role>
+                    <role>beau-père</role>
+                    <role>belle-mère</role>
+                    <role>beau-fils</role>
+                    <role>belle-fille</role>
+                    <role>bru</role>
+                    <role>gendre</role>
+                    <role>beau-frère (côté conjoint)</role>
+                    <role>belle-sœur (côté conjoint)</role>
+                    <role>beau-frère (côté fraterie)</role>
+                    <role>belle-sœur (côté fraterie)</role>
+                </roles>
+            </type>
+            <!-- connaissance -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isRelatedTo">
+                <label>est lié à</label>
+                <value>rico:isRelatedTo</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#knows">
+                <label>connaît (réciprocité)</label>
+                <value>rico:knows</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#knowsOf">
+                <label>a connaissance de</label>
+                <value>rico:knowsOf</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy">
+                <label>est connu de</label>
+                <value>rico:knownBy</value>
+            </type>
+            <!-- office  -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isOrWasOwnerOf">
+                <label>est ou était le propriétaire de</label>
+                <value>rico:isOrWasOwnerOf</value>
+                <roles>
+                    <role>propriétaire</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasSuccessor">
+                <label>a pour successeur</label>
+                <value>rico:hasSuccessor</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isSuccessorOf">
+                <label>est le successeur de</label>
+                <value>rico:isSuccessorOf</value>
+            </type>
+            <!-- relations de travail -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isOrWasUnderAuthorityOf">
+                <label>est ou était sous l'autorité de</label>
+                <value>rico:isOrWasUnderAuthorityOf</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadAuthorityOver">
+                <label>a ou avait autorité sur</label>
+                <value>rico:hasOrHadAuthorityOver</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController">
+                <label>a ou avait pour contrôleur</label>
+                <value>rico:hasOrHadController</value>
+                <roles>
+                    <role>examinateur</role>
+                    <role>observateur</role>
+                </roles>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isOrWasControllerOf">
+                <label>est ou était contrôleur de</label>
+                <value>rico:isOrWasControllerOf</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#isOrWasSubordinateTo">
+                <label>est ou était subordonné à</label>
+                <value>rico:isOrWasSubordinateTo</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadSubordinate">
+                <label>a ou avait pour subordonné</label>
+                <value>rico:hasOrHadSubordinate</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadWorkRelationWith">
+                <label>a ou avait une relation de travail avec</label>
+                <value>rico:hasOrHadWorkRelationWith</value>
+            </type>
+            <!-- enseignement -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadTeacher">
+                <label>a ou avait pour professeur</label>
+                <value>rico:hasOrHadTeacher</value>
+            </type>
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadStudent">
+                <label>a ou avait pour étudiant</label>
+                <value>rico:hasOrHadStudent</value>
+            </type>
+            <!-- autre -->
+            <type vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadCorrespondent">
+                <label>a ou avait pour correspondant</label>
+                <value>rico:hasOrHadCorrespondent</value>
+            </type>
+        </relations>
+    </xf:instance>
+
+    <xf:instance id="eventTypes">
+        <events xmlns="">
+            <event>
+                <label>Naissance</label>
+                <value>birth</value>
+            </event>
+            <event>
+                <label>Baptême</label>
+                <value>baptism</value>
+            </event>
+            <event>
+                <label>Mariage</label>
+                <value>marriage</value>
+            </event>
+            <event>
+                <label>Décès</label>
+                <value>death</value>
+            </event>
+            <event>
+                <label>Maîtrise</label>
+                <value>master</value>
+            </event>
+            <event>
+                <label>Achat d'office</label>
+                <value>officePurchase</value>
+            </event>
+            <event>
+                <label>Provision d'office</label>
+                <value>provision</value>
+            </event>
+            <event>
+                <label>Réception</label>
+                <value>reception</value>
+            </event>
+            <event>
+                <label>Réception dans la première colonne</label>
+                <value>receptionColumn1</value>
+            </event>
+            <event>
+                <label>Réception dans la seconde colonne</label>
+                <value>receptionColumn2</value>
+            </event>
+            <event>
+                <label>Présence dans les Almanachs</label>
+                <value>almanacs</value>
+            </event>
+            <event>
+                <label>Honorariat</label>
+                <value>honorary</value>
+            </event>
+            <event>
+                <label>Résignation</label>
+                <value>relinquishment</value>
+            </event>
+            <event>
+                <label>Vente d'office</label>
+                <value>officeSale</value>
+            </event>
+            <event>
+                <label>Suppression des offices</label>
+                <value>officesEnding</value>
+            </event>
+            <event>
+                <label>Dispense d'age</label>
+                <value>exemption</value>
+            </event>
+            <event>
+                <label>Sentence d'interdiction</label>
+                <value>barringFromOffice</value>
+            </event>
+            <event>
+                <label>Faillite</label>
+                <value>bankruptcy</value>
+            </event>
+            <event>
+                <label>Saisie réelle</label>
+                <value>seizure</value>
+            </event>
+        </events>
+    </xf:instance>
+
+    <xf:instance id="nameParts">
+        <parts xmlns="">
+            <!-- https://en.wikipedia.org/wiki/Title -->
+            <part>full</part>
+            <part>surname</part>
+            <part>forename</part>
+            <part>particle</part>
+            <part>Common title</part>
+            <part>Academic title</part>
+            <part>Ecclesiastical title</part>
+            <part>Aristocratic title</part>
+            <part>name</part>
+        </parts>
+    </xf:instance>
+
+    <xf:instance id="otherEntityTypes">
+        <otherEntityTypes xmlns="https://archivists.org/ns/eac/v2">
+            <type>
+                <label>Expert (tableau)</label>
+                <otherEntityType><term>expert</term></otherEntityType>
+            </type>
+            <type>
+                <label>Expert (non inscrit)</label>
+                <otherEntityType><term>altExpert</term></otherEntityType>
+            </type>
+            <type>
+                <label>Greffier</label>
+                <otherEntityType><term>clerk</term></otherEntityType>
+            </type>
+            <type>
+                <label>Maçon</label>
+                <otherEntityType><term>mason</term></otherEntityType>
+            </type>
+            <type>
+                <label>Autre (personne)</label>
+                <otherEntityType><term>person</term></otherEntityType>
+            </type>
+        </otherEntityTypes>
+    </xf:instance>
+
+    <xf:instance id="occupationTypes">
+        <occupationTypes xmlns="">
+            <group>
+                <label>Bâtiment</label>
+                <type>Architecte</type>
+                <type>Architecte du roi</type>
+                <type>Entrepreneur des bâtiments du roi</type>
+                <type>Autre métier au service du roi</type>
+                <type>Architecte expert bourgeois</type>
+                <type>Expert entrepreneur</type>
+                <type>Entrepreneur architecte</type>
+                <type>Architecte et entrepreneur</type>
+                <type>Entrepreneur ou maître de métier</type>
+                <type>Compagnon</type>
+                <type>Autre</type>
+            </group>
+            <group>
+                <label>Bâtiment et Droit</label>
+                <type>Expert et juriste</type>
+                <type>Greffier des bâtiments</type>
+                <type>Maître général</type>
+                <type>Maître général et expert</type>
+                <type>Commissaire de voirie</type>
+            </group>
+            <group>
+                <label>Droit</label>
+                <type>Avocat</type>
+                <type>Procureur</type>
+                <type>Greffier</type>
+                <type>Huissier</type>
+                <type>Notaire</type>
+                <type>Autres</type>
+            </group>
+            <group>
+                <label>Religion</label>
+                <type>Religieux</type>
+            </group>
+            <group>
+                <label>Noble</label>
+                <type>Noble sans profession</type>
+                <type>Noble</type>
+            </group>
+            <group>
+                <label>Commerce</label>
+                <type>Marchand Bourgeois</type>
+                <type>Maître et marchand</type>
+                <type>Marchand</type>
+                <type>Autres</type>
+            </group>
+            <group>
+                <label>Métiers (hors bâtiment)</label>
+                <type>Maître de métier au service du roi (hors bâtiment)</type>
+                <type>Maitre de métier (hors bâtiment)</type>
+            </group>
+            <group>
+                <label>Armée</label>
+                <type>Armée</type>
+                <type>Officier militaire roturier</type>
+                <type>Officier militaire noble</type>
+            </group>
+            <group>
+                <label>Autres</label>
+                <type>Bourgeois de Paris</type>
+                <type>Laboureur</type>
+                <type>Sans profession</type>
+                <type>Autres</type>
+            </group>
+        </occupationTypes>
+    </xf:instance>
+
+    <!-- /ETC -->
+
+    <xf:instance id="documentation" src="/bio/files/EAC-CPF-v2-TL-eng.xml"/>
+
+    <xf:submission id="change-language" replace="instance" instance="documentation" method="get" serialization="none">
+        <xf:resource value="instance('language')/language"/>
+    </xf:submission>
+
+    <xf:submission id="save2file" ref="instance('eacInstance')" method="put" resource="file:eac" mediatype="application/xml" value="form-source()">
+        <xf:action ev:event="xforms-submit">
+            <xf:delete nodeset="instance('eacInstance')//@standardDate[normalize-space(.)='']"/>
+            <xf:delete nodeset="instance('eacInstance')//@notBefore[normalize-space(.)='']"/>
+            <xf:delete nodeset="instance('eacInstance')//@notAfter[normalize-space(.)='']"/>
+
+            <xf:delete nodeset="instance('eacInstance')//eac:date[not(ancestor::eac:existDates)]/@sourceReference"/>
+            <xf:delete nodeset="instance('eacInstance')//eac:fromDate[not(ancestor::eac:existDates)]/@sourceReference"/>
+            <xf:delete nodeset="instance('eacInstance')//eac:toDate[not(ancestor::eac:existDates)]/@sourceReference"/>
+        </xf:action>
+
+        <xf:action ev:event="xforms-submit-done">
+            <xf:hide dialog="control"/>
+            <xf:message level="modal">
+                La ressource a été enregistrée !
+                Status : <xf:output value="event('response-status-code')"/>;
+                URI : <xf:output value="event('resource-uri')"/>;
+                Headers : <xf:output value="event('response-headers')"/>;
+                Reason : <xf:output value="event('response-reason-phrase')"/>;
+                Body : <xf:output value="event('response-body')"/>.
+            </xf:message>
+        </xf:action>
+        <xf:action ev:event="xforms-submit-error">
+            <xf:message level="modal">
+                erreur :
+                error-type: <xf:output value="event('error-type')"/>
+                error-message: <xf:output value="event('error-message')"/>
+                response-status-code: <xf:output value="event('response-status-code')"/>
+                response-reason-phrase: <xf:output value="event('response-reason-phrase')"/>
+                resource-uri: <xf:output value="event('resource-uri')"/>
+            </xf:message>
+        </xf:action>
+    </xf:submission>
+
+    <xf:submission id="save2db" method="put" resource="/bio/biographies/put" replace="none">
+        <xf:action ev:event="xforms-submit">
+            <xf:delete nodeset="instance('eacInstance')//@standardDate[normalize-space(.)='']"/>
+            <xf:delete nodeset="instance('eacInstance')//@notBefore[normalize-space(.)='']"/>
+            <xf:delete nodeset="instance('eacInstance')//@notAfter[normalize-space(.)='']"/>
+
+            <xf:delete nodeset="instance('eacInstance')//eac:date[not(ancestor::eac:existDates)]/@sourceReference"/>
+            <xf:delete nodeset="instance('eacInstance')//eac:fromDate[not(ancestor::eac:existDates)]/@sourceReference"/>
+            <xf:delete nodeset="instance('eacInstance')//eac:toDate[not(ancestor::eac:existDates)]/@sourceReference"/>
+        </xf:action>
+
+        <xf:action ev:event="xforms-submit-done">
+            <xf:hide dialog="control"/>
+            <xf:message level="modal">
+                La ressource a été enregistrée !
+                Status : <xf:output value="event('response-status-code')"/>;
+                URI : <xf:output value="event('resource-uri')"/>;
+                Headers : <xf:output value="event('response-headers')"/>;
+                Reason : <xf:output value="event('response-reason-phrase')"/>;
+                Body : <xf:output value="event('response-body')"/>.
+            </xf:message>
+            <xf:load resource="/bio/biographies/view" show="replace"/>
+        </xf:action>
+        <xf:action ev:event="xforms-submit-error">
+            <xf:message level="modal">
+                erreur :
+                error-type: <xf:output value="event('error-type')"/>
+                error-message: <xf:output value="event('error-message')"/>
+                response-status-code: <xf:output value="event('response-status-code')"/>
+                response-reason-phrase: <xf:output value="event('response-reason-phrase')"/>
+                resource-uri: <xf:output value="event('resource-uri')"/>
+            </xf:message>
+            <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@standardDate)]">
+                <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@standardDate)]"
+                           origin="instance('eacDates')/eac:date/@standardDate"/>
+            </xf:action>
+            <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notAfter)]">
+                <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notAfter)]"
+                           origin="instance('eacDates')/eac:date/@notAfter"/>
+            </xf:action>
+            <xf:action while="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notBefore)]">
+                <xf:insert context="instance('eacInstance')//*[self::eac:date or self::eac:fromDate or self::eac:toDate][not(@notBefore)]"
+                           origin="instance('eacDates')/eac:date/@notBefore"/>
+            </xf:action>
+        </xf:action>
+    </xf:submission>
+
+    <!--<xf:action ev:event="getid" while="//@id[.=''][parent::*[self::eac:source or self::eac:reference or self::eac:citedRange or self::eac:chronItem or self::eac:relationType]]">
+      <xf:load>
+        <xf:resource value="concat(
+        'javascript:generateid(''',
+        name(//@id[.=''][parent::*[self::eac:source or self::eac:reference or self::eac:citedRange or self::eac:chronItem or self::eac:relationType][not(ancestor::*[self::eac:source or self::eac:reference or self::eac:citedRange][@id=''] or preceding::*[self::eac:source or self::eac:reference or self::eac:citedRange or self::eac:chronItem][@id=''])]]/parent::*)
+        ,''')')"/>
+      </xf:load>
+    </xf:action>-->
+
+    <xf:action ev:event="getid" while="//@id[.=''][parent::*[self::eac:source or self::eac:chronItem or self::eac:relationType]]">
+        <xf:load>
+            <xf:resource value="concat(
+          'javascript:generateid(''',
+          name(//@id[.=''][parent::*[self::eac:source or self::eac:chronItem or self::eac:relationType][not(preceding::*[self::eac:source or self::eac:chronItem][@id=''])]]/parent::*)
+          ,''')')"/>
+        </xf:load>
+    </xf:action>
+
+    <xf:action ev:event="callbackevent">
+        <xf:setvalue ref="//@id[.=''][parent::*[self::eac:source or self::eac:chronItem or self::eac:relationType][not(preceding::*[self::eac:source or self::eac:chronItem or self::eac:relationType][@id=''])]]" value="event('response')"/>
+        <xf:setvalue if="//eac:targetRole[@target=''][preceding-sibling::*[1][self::eac:relationType[normalize-space(@id)!='']]]" ref="//@target[.=''][parent::eac:targetRole[preceding-sibling::*[1][self::eac:relationType[normalize-space(@id)!='']]]]" value="event('response')"/>
+    </xf:action>
+
+    <xf:instance id="query">
+        <query xmlns=""/>
+    </xf:instance>
+
+    <xf:instance id="results">
+        <results xmlns=""/>
+    </xf:instance>
+
+    <xf:submission id="getWord" method="get" replace="instance" instance="results" serialization="none" mode="synchronous">
+        <xf:resource value="concat('/bio/search/bio/',instance('query'))"/>
+    </xf:submission>
+
+    
+    <!--<xf:submission id="s1" method="get" replace="instance" instance="iresults" serialization="none" mode="synchronous" mediatype="application/javascript">
+        <xf:resource value="concat('http://en.wikipedia.org/w/api.php?action=opensearch&amp;format=json&amp;search=',instance('isearch')/search)"/>
+    </xf:submission>-->
+
+</xf:model>
