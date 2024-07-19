@@ -57,13 +57,14 @@ declare function bio.models.bio:mime-type($name as xs:string) as xs:string {
  : @param $outputParams the output params
  : @return an updated document and instantiated pattern
  :)
+
 declare function wrapper($content as map(*), $outputParams as map(*)) as node()* {
   let $layout := file:base-dir() || "files/" || map:get($outputParams, 'layout')
   let $wrap := fn:doc($layout)
   let $regex := '\{(.+?)\}'
   return
-    $wrap/* update (
-      for $node in .//*[fn:matches(text(), $regex)] | .//@*[fn:matches(., $regex)]
+    $wrap update {
+      for $node in .//*[text()[fn:matches(., $regex)]] | .//@*[fn:matches(., $regex)]
       let $key := fn:analyze-string($node, $regex)//fn:group/text()
       return switch ($key)
         case 'model' return replace node $node with getModels($content)
@@ -88,7 +89,7 @@ declare function wrapper($content as map(*), $outputParams as map(*)) as node()*
                                                                }]]>
                                                              </script>
         default return associate($content, $outputParams, $node)
-      )
+      }
 };
 
 (:~

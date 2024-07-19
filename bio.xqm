@@ -57,7 +57,7 @@ declare
   %rest:path("/bio")
   %output:method("xml")
 function index() {
-  if (db:exists("bio"))
+  if ( db:exists("bio") )
     then web:redirect("/bio/home") 
     else web:redirect("/bio/install") 
 };
@@ -175,7 +175,7 @@ declare
   %rest:produces('application/xml')
   %output:method("xml")
 function getBiographies() {
-  <bio>{ db:open('bio', 'biographies') }</bio>
+  <bio>{ db:get('bio', 'biographies') }</bio>
 };
 
 (:~
@@ -215,11 +215,11 @@ declare
   %perm:allow("prosopography")
   %updating
 function putBiography($param, $referer) {
-  let $db := db:open("bio")
+  let $db := db:get("bio")
   return
     if ($param/*/@xml:id) then
       let $location := fn:analyze-string($referer, 'bio/biographies/(.+?)/modify')//fn:group[@nr='1']
-      return db:replace('bio', 'biographies/'|| $location ||'.xml', $param)
+      return db:put('bio', $param, 'biographies/'|| $location ||'.xml')
     else
       let $type := switch ($param//eac:identity/eac:entityType/@value)
         case 'person' return 'person'
@@ -336,7 +336,7 @@ declare
   %rest:path("bio/biographies/{$id}")
   %output:method("xml")
 function getBiography($id) {
-  db:open('bio', 'biographies/'||$id||'.xml')
+  db:get('bio', 'biographies/'||$id||'.xml')
 };
 
 (:~
