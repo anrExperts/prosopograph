@@ -40,19 +40,6 @@ declare default function namespace "bio.mappings.html" ;
 
 declare default collation "http://basex.org/collation?lang=fr" ;
 
-(:~
- : this function get the interface message
- : @todo deals with other cases
- :)
-declare function getMessage($id, $lang) {
-  let $message := $G:interface/bio:interface/bio:prosopo/bio:element[@xml:id=$id]/bio:message[@xml:lang]/node()
-  return
-    if ($message[fn:normalize-space(.)!='']) then
-      $message
-    else
-      <message>todo</message>
-};
-
 
 declare function getFormatedDate($node as node()*, $options as map(*)) as xs:string {
   (:@todo make it work with string and node:)
@@ -85,13 +72,11 @@ declare function listEac2html($node as node()*, $options as map(*)) as item()* {
     for $entity in $node//eac:eac
     let $id := $entity/@xml:id => fn:normalize-unicode()
     let $name := $entity//eac:nameEntry[@status='authorized'] => fn:normalize-unicode()
-    let $type := $entity//eac:identity/@localType => getMessage($options)
     let $dates := $entity/@xml:id => fn:normalize-unicode()
     return
       <li>
         <h3 class="name">{$name}</h3>
         <p class="date">{$dates}</p>
-        <p class="type">{$type}</p>
         <p><a class="view" href="{'/bio/biographies/' || $id || '/view'}">Voir</a> | <a class="modify" href="{'/bio/biographies/' || $id || '/modify'}">Modifier</a></p>
       </li>
   }</ul>

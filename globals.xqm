@@ -18,4 +18,3 @@ declare namespace file = "http://expath.org/ns/file" ;
 
 declare variable $G:xsltFormsPath := "/bio/files/xsltforms/xsltforms.xsl" ;
 declare variable $G:home := file:base-dir() ;
-declare variable $G:interface := fn:doc($G:home || "files/interface.xml") ;

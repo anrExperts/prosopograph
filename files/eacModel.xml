@@ -22,8 +22,6 @@
 
     <xf:instance id="eacInstance" src="/bio/files/_eacInstance.xml"/>
 
-    <!--<xf:instance id="xprEntities" src="/bio/entities"/>-->
-
     <xf:instance id="getAgent">
         <data xmlns="">
             <param>getAgent</param>
@@ -42,7 +40,7 @@
     <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:identity/eac:entityType/@value" required="true()"/>
 
     <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:relations/eac:relation/eac:targetEntity/eac:part/@localType" readonly="true()"/>
-    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:relations/eac:relation/eac:targetEntity/eac:part[@localType='xprRef']" readonly="true()"/>
+    <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:relations/eac:relation/eac:targetEntity/eac:part[@localType='databaseRef']" readonly="true()"/>
 
     <!--@rmq eac:part "cannot be empty and requires at least one non-whitespace character, such as a hyphen, if no actual name can be given." -->
     <xf:bind nodeset="instance('eacInstance')/eac:cpfDescription/eac:identity//eac:part" type="eac:part"/>
@@ -121,11 +119,6 @@
                     <part localType=""></part>
                 </nameEntry>
             </nameEntrySet>
-            <otherEntityTypes>
-                <otherEntityType>
-                    <term></term>
-                </otherEntityType>
-            </otherEntityTypes>
             <identityId target=""/>
             <descriptiveNote>
                 <p></p>
@@ -156,9 +149,6 @@
             <functions>
                 <function localType="" sourceReference="">
                     <term/>
-                    <!--optionnal (all below)-->
-                    <!--<date/> | <dateRange/> | <dateSet/>-->
-                    <!--<placeName sourceReference=""/>-->
                     <placeName/>
                     <descriptiveNote>
                         <p></p>
@@ -173,8 +163,6 @@
             <occupations>
                 <occupation localType="" sourceReference="">
                     <term></term>
-                    <!--optionnal (all below)-->
-                    <!--<date/> | <dateRange/> | <dateSet/>-->
                     <placeName sourceReference=""/>
                     <descriptiveNote>
                         <p></p>
@@ -203,7 +191,6 @@
                 <address>
                     <addressLine></addressLine>
                 </address>
-                <!-- <date/> | <dateRange/> | <dateSet/> -->
                 <descriptiveNote>
                     <p></p>
                 </descriptiveNote>
@@ -216,7 +203,6 @@
             <biogHist>
                 <head/>
                 <abstract/>
-                <!-- one or more -->
                 <chronList>
                     <chronItem id="" sourceReference="" localType="">
                         <date certainty="" standardDate="" notBefore="" notAfter="" sourceReference=""/>
@@ -274,8 +260,6 @@
                 <targetEntity targetType="">
                     <part localType=""></part>
                 </targetEntity>
-                <!--<date/> | <dateRange/> | <dateSet/>-->
-                <!-- repeatable -->
                 <place></place>
                 <relationType id="" valueURI="" vocabularySource="" vocabularySourceURI="" sourceReference=""/>
                 <targetRole target=""></targetRole>
@@ -284,168 +268,6 @@
                 </descriptiveNote>
             </relation>
         </relations>
-    </xf:instance>
-
-    <xf:instance id="eacRelations4Reception">
-        <cpfDescription xmlns="https://archivists.org/ns/eac/v2">
-            <relations>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#isSuccessorOf" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:isSuccessorOf</relationType>
-                    <targetRole target="">prédécesseur</targetRole>
-                    <descriptiveNote>
-                        <p></p>
-                    </descriptiveNote>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
-                    <targetRole target="">témoin</targetRole>
-                    <descriptiveNote>
-                        <p></p>
-                    </descriptiveNote>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
-                    <targetRole target="">témoin</targetRole>
-                    <descriptiveNote>
-                        <p></p>
-                    </descriptiveNote>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#knownBy" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:knownBy</relationType>
-                    <targetRole target="">témoin</targetRole>
-                    <descriptiveNote>
-                        <p></p>
-                    </descriptiveNote>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-                <relation target="" sourceReference="">
-                    <targetEntity targetType="person">
-                        <part localType="full"/>
-                        <part localType="status"/>
-                        <part localType="occupationType"/>
-                        <part localType="age"/>
-                        <part localType="address"/>
-                        <part localType="origPlace"/>
-                        <part localType="xprRef"/>
-                    </targetEntity>
-                    <relationType id="" valueURI="https://www.ica.org/standards/RiC/ontology#hasOrHadController" vocabularySource="RiC-O" vocabularySourceURI="https://www.ica.org/standards/RiC/ontology" sourceReference="">rico:hasOrHadController</relationType>
-                    <targetRole target="">examinateur</targetRole>
-                </relation>
-            </relations>
-        </cpfDescription>
     </xf:instance>
 
     <!-- ETC -->
@@ -627,66 +449,6 @@
                 <label>Décès</label>
                 <value>death</value>
             </event>
-            <event>
-                <label>Maîtrise</label>
-                <value>master</value>
-            </event>
-            <event>
-                <label>Achat d'office</label>
-                <value>officePurchase</value>
-            </event>
-            <event>
-                <label>Provision d'office</label>
-                <value>provision</value>
-            </event>
-            <event>
-                <label>Réception</label>
-                <value>reception</value>
-            </event>
-            <event>
-                <label>Réception dans la première colonne</label>
-                <value>receptionColumn1</value>
-            </event>
-            <event>
-                <label>Réception dans la seconde colonne</label>
-                <value>receptionColumn2</value>
-            </event>
-            <event>
-                <label>Présence dans les Almanachs</label>
-                <value>almanacs</value>
-            </event>
-            <event>
-                <label>Honorariat</label>
-                <value>honorary</value>
-            </event>
-            <event>
-                <label>Résignation</label>
-                <value>relinquishment</value>
-            </event>
-            <event>
-                <label>Vente d'office</label>
-                <value>officeSale</value>
-            </event>
-            <event>
-                <label>Suppression des offices</label>
-                <value>officesEnding</value>
-            </event>
-            <event>
-                <label>Dispense d'age</label>
-                <value>exemption</value>
-            </event>
-            <event>
-                <label>Sentence d'interdiction</label>
-                <value>barringFromOffice</value>
-            </event>
-            <event>
-                <label>Faillite</label>
-                <value>bankruptcy</value>
-            </event>
-            <event>
-                <label>Saisie réelle</label>
-                <value>seizure</value>
-            </event>
         </events>
     </xf:instance>
 
@@ -703,31 +465,6 @@
             <part>Aristocratic title</part>
             <part>name</part>
         </parts>
-    </xf:instance>
-
-    <xf:instance id="otherEntityTypes">
-        <otherEntityTypes xmlns="https://archivists.org/ns/eac/v2">
-            <type>
-                <label>Expert (tableau)</label>
-                <otherEntityType><term>expert</term></otherEntityType>
-            </type>
-            <type>
-                <label>Expert (non inscrit)</label>
-                <otherEntityType><term>altExpert</term></otherEntityType>
-            </type>
-            <type>
-                <label>Greffier</label>
-                <otherEntityType><term>clerk</term></otherEntityType>
-            </type>
-            <type>
-                <label>Maçon</label>
-                <otherEntityType><term>mason</term></otherEntityType>
-            </type>
-            <type>
-                <label>Autre (personne)</label>
-                <otherEntityType><term>person</term></otherEntityType>
-            </type>
-        </otherEntityTypes>
     </xf:instance>
 
     <xf:instance id="occupationTypes">
@@ -920,8 +657,8 @@
         <results xmlns=""/>
     </xf:instance>
 
-    <xf:submission id="getWord" method="get" replace="instance" instance="results" serialization="none" mode="synchronous">
-        <xf:resource value="concat('/bio/search/bio/',instance('query'))"/>
+    <xf:submission id="getEntities" method="get" replace="instance" instance="results" serialization="none" mode="synchronous">
+        <xf:resource value="concat('/bio/search/',instance('query'))"/>
     </xf:submission>
 
     

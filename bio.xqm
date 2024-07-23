@@ -289,37 +289,13 @@ function getBiographiesJson($body) {
   let $meta := map {
     'start' : $body?start,
     'count' : $body?count,
-    'qualities' : map:merge(
-      for $quality in fn:distinct-values($biographies/eac:eac//eac:identity//eac:otherEntityType/eac:term[fn:normalize-space(.)!=''])
-      return map{
-        fn:normalize-space($quality) : switch($quality)
-          case 'expert' return 'expert (tableau)'
-          case 'mason' return 'maçon'
-          case 'altExpert' return 'expert (non inscrit)'
-          case 'person' return 'autre personne'
-          case 'office' return 'office d’expert'
-          case 'family' return 'famille'
-          case 'org' return 'institution'
-          default return ''
-      }
-    ),
     'totalBiographies' : fn:count($biographies/eac:eac)
   }
   let $content := array{
     for $biography in fn:subsequence($biographies/eac:eac, $body?start, $body?count)
-    let $quality := switch($biography//eac:identity//eac:otherEntityType/eac:term)
-      case 'expert' return 'expert (tableau)'
-      case 'mason' return 'maçon'
-      case 'altExpert' return 'expert (non inscrit)'
-      case 'person' return 'autre personne'
-      case 'office' return 'office d’expert'
-      case 'family' return 'famille'
-      case 'org' return 'institution'
-      default return ''
     return map{
       'id' : fn:normalize-space($biography/@xml:id),
-      'name' : bio.mappings.html:getEntityName($biography/@xml:id),
-      'quality' : $quality
+      'name' : bio.mappings.html:getEntityName($biography/@xml:id)
     }
   }
   return map{
@@ -502,6 +478,74 @@ function getBiographyJson($id) {
     'content' : $content
   }
 };
+
+(:~
+ : This resource function lists the persons or corporate bodies
+ : @return an xml list of persons/corporate bodies
+ :)
+declare
+  %rest:path("/bio/search/{$person}")
+  %rest:produces('application/xml')
+  %output:method("xml")
+function getPerson($person) {
+  let $prosopo := getBiographies()/eac:eac
+  return (
+    <results xmlns="">{
+      for $person in $prosopo[fn:normalize-space(eac:cpfDescription/eac:identity) contains text { $person } all words using fuzzy]
+      return <result xml:id="{ $person/@xml:id }">{$person/descendant::eac:nameEntry[@preferredForm='true'][@status='authorized'][1]/eac:part[@localType='full'] => fn:normalize-space()}</result>
+    }</results>
+  )
+};
+
+(:~
+ : This function consumes
+ :
+ :)
+declare
+  %rest:path("bio/network")
+  %output:method("json")
+  %rest:produces("application/json")
+function getNetworks() {
+  let $nodes :=
+    for $entity in db:get('bio', 'biographies')
+    return map {
+      "id" : $entity/eac:eac/@xml:id => fn:normalize-space(),
+      "name" : $entity/descendant::eac:identity/eac:nameEntry[@status='authorized'][@preferredForm='true']/eac:part[@localType='full'] => fn:normalize-space()
+    }
+
+  let $links :=
+    for $relation in db:get('bio', 'biographies')//descendant::eac:relation[descendant::eac:part[@localType="databaseRef"][fn:normalize-space(.)!='']]
+    let $sourceId := $relation/ancestor::eac:eac/@xml:id => fn:normalize-space()
+    let $targetId := $relation/descendant::eac:part[@localType="databaseRef"]/fn:substring-after(., '#') => fn:normalize-space()
+    return map {
+      'source' : $sourceId,
+      'target' : $targetId
+    }
+
+  return map {
+    'nodes' : array{$nodes},
+    'links' : array{$links}
+  }
+};
+(:~
+ : This resource function displays network
+ : @return
+ :)
+declare
+  %rest:path("/bio/network/view")
+  %rest:produces('application/xml')
+  %output:method("html")
+function showNetwork() {
+let $content := map {
+      'title' : 'Network',
+      'data' : ''
+    }
+    let $outputParam := map {
+      'layout' : "network.xml"
+    }
+    return bio.models.bio:wrapper($content, $outputParam)
+};
+
 
 (:~
  : Permissions: biographies

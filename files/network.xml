@@ -1,0 +1,27 @@
+<html lang="fr">
+    <head>
+        <title>bio</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Application de l’ANR Experts" />
+        <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,400i|IBM+Plex+Sans+Condensed:400,400i|IBM+Plex+Sans:100,100i,400,400i,700,700i|IBM+Plex+Serif:400,400i" rel="stylesheet" />
+        <link href="/bio/files/css/normalize.css" rel="stylesheet" />
+        <link href="/bio/files/css/main.css" rel="stylesheet" />
+        <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+        <script src="https://d3js.org/d3.v6.js"></script>
+    </head>
+    <body>
+        <nav id="navigation">
+            <ul>
+                <li><a href="/bio">¡bio!</a></li>
+                <li><a href="/bio/biographies/view">prosopo</a></li>
+                <li><a href="/bio/networks">dataviz</a></li>
+                <li><a href="/bio/about">?</a></li>
+            </ul>
+        </nav>
+        <main>
+            <div id="my_dataviz"></div>
+        </main>
+        <script src="/bio/files/js/d3.js"></script>
+    </body>
+</html>
