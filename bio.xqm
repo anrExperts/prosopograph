@@ -353,12 +353,13 @@ declare
 function getBiographyHtml($id) {
   let $content := map {
     'title' : 'Fiche de ' || $id,
+    'id' : $id,
     'data' : getBiography($id)/eac:eac,
     'trigger' : '',
     'form' : ''
   }
   let $outputParam := map {
-    'layout' : "ficheProsopo.xml",
+    'layout' : "ficheEntite.xml",
     'mapping' : bio.mappings.html:eac2html(map:get($content, 'data'), map{})
   }
   return bio.models.bio:wrapper($content, $outputParam)
@@ -502,19 +503,20 @@ function getPerson($person) {
  :
  :)
 declare
-  %rest:path("bio/network")
+  %rest:path("bio/networks")
   %output:method("json")
   %rest:produces("application/json")
 function getNetworks() {
   let $nodes :=
     for $entity in db:get('bio', 'biographies')
+    let $id := $entity/eac:eac/@xml:id => fn:normalize-space()
     return map {
-      "id" : $entity/eac:eac/@xml:id => fn:normalize-space(),
-      "name" : $entity/descendant::eac:identity/eac:nameEntry[@status='authorized'][@preferredForm='true']/eac:part[@localType='full'] => fn:normalize-space()
+      "id" : $id,
+      "name" : bio.mappings.html:getEntityName($id)
     }
 
   let $links :=
-    for $relation in db:get('bio', 'biographies')//descendant::eac:relation[descendant::eac:part[@localType="databaseRef"][fn:normalize-space(.)!='']]
+    for $relation in db:get('bio', 'biographies')/descendant::eac:relation[descendant::eac:part[@localType="databaseRef"][fn:normalize-space(.)!='']]
     let $sourceId := $relation/ancestor::eac:eac/@xml:id => fn:normalize-space()
     let $targetId := $relation/descendant::eac:part[@localType="databaseRef"]/fn:substring-after(., '#') => fn:normalize-space()
     return map {
@@ -527,17 +529,58 @@ function getNetworks() {
     'links' : array{$links}
   }
 };
+
+(:~
+ : This function consumes
+ :
+ :)
+declare
+  %rest:path("bio/networks/{$id}")
+  %output:method("json")
+  %rest:produces("application/json")
+function getEntityNetworks($id) {
+  let $entity := db:get('bio', 'biographies')/eac:eac[@xml:id=$id]
+  let $relations := $entity/descendant::eac:relation[descendant::eac:part[@localType="databaseRef"][fn:normalize-space(.)!='']]
+
+  let $nodes := (
+    map {
+      "id" : $id,
+      "name": bio.mappings.html:getEntityName($id)
+    },
+    for $relation in $relations
+    let $entityId := $relation/descendant::eac:part[@localType="databaseRef"]/fn:substring-after(., '#') => fn:normalize-space()
+    return map {
+    "id" : $entityId,
+    "name" : bio.mappings.html:getEntityName($entityId)
+    }
+  )
+
+  let $links :=
+    for $relation in $relations
+    let $sourceId := $id
+    let $targetId := $relation/descendant::eac:part[@localType="databaseRef"]/fn:substring-after(., '#') => fn:normalize-space()
+    return map {
+      'source' : $sourceId,
+      'target' : $targetId
+    }
+
+  return map {
+    'nodes' : array{$nodes},
+    'links' : array{$links}
+  }
+};
+
 (:~
  : This resource function displays network
  : @return
  :)
 declare
-  %rest:path("/bio/network/view")
+  %rest:path("/bio/networks/view")
   %rest:produces('application/xml')
   %output:method("html")
 function showNetwork() {
 let $content := map {
-      'title' : 'Network',
+      'title' : 'Networks',
       'data' : ''
     }
     let $outputParam := map {

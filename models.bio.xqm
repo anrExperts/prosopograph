@@ -71,6 +71,10 @@ declare function wrapper($content as map(*), $outputParams as map(*)) as node()*
         case 'trigger' return replace node $node with getTriggers($content)
         case 'form' return replace node $node with getForms($content)
         case 'data' return replace node $node with $content?data
+        case 'network' return replace value of node $node with
+          "const network = '/bio/networks/"|| $content?id ||"'
+          console.log('network url : ', network)"
+
         case 'content' return replace node $node with $outputParams?mapping
         case 'jsfunction' return replace node $node with     <script type="text/javascript">
                                                                <![CDATA[function generateid(param) {

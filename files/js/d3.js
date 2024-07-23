@@ -20,7 +20,7 @@ const svg = d3.select("#my_dataviz")
         `translate(${margin.left}, ${margin.top})`
     );
 
-d3.json("/bio/network").then( function( data) {
+d3.json(network).then( function( data) {
 
     // Initialize the links
     const link = svg

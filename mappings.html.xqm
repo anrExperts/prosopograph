@@ -110,9 +110,8 @@ function passthru($nodes as node(), $options as map(*)) as item()* {
 
 declare function getIdentity($node as node()*, $options as map(*)) as node()* {
   <header>{(
-    getEntityType($node/eac:entityType, $options),
-    <h2>{getEntityName($node/eac:identityId)}</h2>,
-    <span class="id">{getEntityId($node/eac:identityId, $options)}</span>,
+    <h2>{ getEntityName($node/ancestor::eac:eac/eac:control/eac:recordId) }</h2>,
+    <span class="id">{ getEntityId($node/ancestor::eac:eac/eac:control/eac:recordId, $options) }</span>,
     for $alternativeForm in $node/eac:nameEntry[@preferredForm!='true']
     return
       <div>
@@ -134,19 +133,8 @@ declare function getIdentity($node as node()*, $options as map(*)) as node()* {
 
 declare function getEntityName($id as xs:string*) as xs:string {
   let $prosopo := bio.bio:getBiographies()
-  let $entityName := $prosopo/eac:eac[@xml:id=$id]/eac:cpfDescription/eac:identity/eac:nameEntry[@preferredForm='true' and @status='authorized'][1]/eac:part/fn:normalize-space()
+  let $entityName := $prosopo/eac:eac[@xml:id=$id]/eac:cpfDescription/eac:identity/eac:nameEntry[@preferredForm='true' and @status='authorized'][1]/eac:part[@localType='full'] => fn:normalize-space()
   return $entityName
-};
-
-(:@todo reprise:)
-declare function getEntityType($node as node(), $options as map(*)) as xs:string {
-  <h3>{
-    switch ($node)
-    case $node[parent::eac:identity/eac:otherEntityTypes[eac:otherEntityType/eac:term='expert']] return 'Fiche prosopographique d’expert'
-    case $node[parent::eac:identity/eac:otherEntityTypes[eac:otherEntityType/eac:term='clerk']][fn:not(eac:otherEntityType/eac:term='expert')] return 'Fiche prosopographique de greffier'
-    case $node[parent::eac:identity/eac:otherEntityTypes[eac:otherEntityType/eac:term='masson']] return 'Fiche prosopographique de maçon'
-    default return 'Fiche prosopographique'
-  }</h3>
 };
 
 declare function getSources($refs as xs:string, $sources as node()*, $options as map(*)) as xs:string* {
@@ -236,15 +224,22 @@ declare function getChronList($node as node(), $options as map(*)) as node()* {
 };
 
 declare function getExistDates($node as node(), $options as map(*)) as node() {
-  <li>{ 'Dates d’existence : ' || getDate($node/eac:dateRange, $options)}</li>
+  <li>{ 'Dates d’existence : ' || getDate($node/*, $options)}</li>
 };
 
 declare function getDate($node as node(), $options as map(*)) as xs:string {
   switch($node)
-  case $node[self::eac:dateRange] return fn:string-join(
-    ($node/eac:fromDate, $node/eac:toDate) ! getPrecision(., $options),
-    ' à ')
+  case $node[self::eac:dateRange] return
+    fn:string-join(
+      ($node/eac:fromDate, $node/eac:toDate) ! getPrecision(., $options),
+      ' à '
+    )
   case $node[self::eac:date[@*!='']] return getPrecision($node, $options)
+  case $node[self::eac:dateSet] return (
+    let $dateSet :=
+      for $date in $node/* return getDate($date, $options)
+    return fn:string-join($dateSet, ' ; ')
+  )
   default return 'aucune date mentionnée'
   (: @todo mettre valeur vide en cas d’abs :)
 };
