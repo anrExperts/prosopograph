@@ -16,3 +16,5 @@ function stickyNavigation() {
     }
 }
 window.addEventListener('scroll', stickyNavigation);
+
+console.log("nav.js chargé")

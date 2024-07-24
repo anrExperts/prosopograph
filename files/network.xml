@@ -26,6 +26,7 @@
             const network = "/bio/networks"
             console.log("network url : ", network)
         </script>
-        <script src="/bio/files/js/d3.js"></script>
+        <script src="/bio/files/js/d3networks.js"></script>
+        <script src="/bio/files/js/nav.js"/>
     </body>
 </html>

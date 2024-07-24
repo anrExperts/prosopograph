@@ -1,3 +1,10 @@
+// see also
+// - https://d3-graph-gallery.com/graph/network_basic.html
+// - https://gist.github.com/EfratVil/58b872b4f15a358c3a9822f5a285c5be
+// - https://gist.github.com/rauldiazpoblete/92f68eac8a957d316e9783ce7521b5f4
+// - https://gist.github.com/mbostock/2675ff61ea5e063ede2b5d63c08020c7
+// - https://lvngd.com/blog/force-directed-network-graph-d3/
+// - https://bost.ocks.org/mike/join/
 // set the dimensions and margins of the graph
 const
     margin= {
@@ -37,6 +44,15 @@ d3.json(network).then( function( data) {
         .attr("r", 20)
         .style("fill", "#69b3a2")
 
+    const label = svg
+        .attr("class", "labels")
+        .selectAll("text")
+        .data(data.nodes)
+        .enter().append("text")
+        .attr("class", "label")
+        .text(function(d) { return d.name; });
+
+
     // Let's list the force we wanna apply on the network
     const simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
         .force("link", d3.forceLink()                               // This force provides links between nodes
@@ -58,6 +74,10 @@ d3.json(network).then( function( data) {
         node
             .attr("cx", function (d) { return d.x+6; })
             .attr("cy", function(d) { return d.y-6; });
+
+        label
+            .attr("x", function(d) { return d.x+8; })
+            .attr("y", function(d) { return d.y+3; });
     }
 
 });

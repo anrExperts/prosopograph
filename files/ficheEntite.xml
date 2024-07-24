@@ -29,7 +29,7 @@
       <div id="my_dataviz"></div>
     </main>
     <script>{network}</script>
-    <script src="/bio/files/js/d3.js"></script>
+    <script src="/bio/files/js/d3networks.js"></script>
     <script src="/bio/files/js/nav.js"/>
   </body>
 </html>

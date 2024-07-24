@@ -36,7 +36,7 @@
     <link
       href="/bio/files/css/eacForms.css"
       rel="stylesheet" />
-    <jsfunction>{jsfunction}</jsfunction>
+    <script src="/bio/files/js/generateid.js"></script>
     <instance>{model}</instance>
   </head>
   <body
@@ -61,51 +61,23 @@
     </main>
     <script>
       function openKeywords() {
-  document.getElementById("keywordsControl").style.width = "100%";
-}
-
-/* Set the width of the sidebar to 0 (hide it) */
-function closeKeywords() {
-  document.getElementById("keywordsControl").style.width = "0";
-} 
+        document.getElementById("keywordsControl").style.width = "100%";
+      }
+      /* Set the width of the sidebar to 0 (hide it) */
+      function closeKeywords() {
+        document.getElementById("keywordsControl").style.width = "0";
+      }
     </script>
     <script>
-/*function repeat() {
-  var element = document.querySelectorAll('div.xforms-group-content');
-  for (var i = 0; i &lt; element.length; i++) {
-    if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
-      element[i].classList.add('repeat');
+      function repeat() {
+        var element = document.querySelectorAll('div.xforms-repeat');
+        for (var i = 0; i &lt; element.length; i++) {
+            if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
+                element[i].classList.add('repeat');
+            }
+        }
       }
-    }
-  }*/
-function repeat() {
-  var element = document.querySelectorAll('div.xforms-repeat');
-  for (var i = 0; i &lt; element.length; i++) {
-    if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
-      element[i].classList.add('repeat');
-      }
-    }
-  }
-        </script>
-    <script>
-// Sticky navigation
-const nav = document.querySelector('#navigation');
-const navTop = nav.offsetTop;
-
-function stickyNavigation() {
-  console.log('navTop = ' + navTop);
-  console.log('scrollY = ' + window.scrollY);
-  if (window.scrollY >= navTop) {
-    // nav offsetHeight = height of nav
-    document.body.style.paddingTop = nav.offsetHeight + 'px';
-    document.body.classList.add('fixed-nav');
-    }
-    else {
-      document.body.style.paddingTop = 0;
-      document.body.classList.remove('fixed-nav');
-    }
-  }
-window.addEventListener('scroll', stickyNavigation);
     </script>
+    <script src="/bio/files/js/nav.js"></script>
   </body>
 </html>
