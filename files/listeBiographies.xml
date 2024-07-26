@@ -11,8 +11,8 @@
   </head>
   <body>
     <nav id="navigation">
+      <h1><a href="/bio">¡bio!</a></h1>
       <ul>
-        <li><a href="/bio">¡bio!</a></li>
         <li><a href="/bio/biographies/view">prosopo</a></li>
         <li><a href="/bio/networks/view">dataviz</a></li>
         <li><a href="/bio/about">?</a></li>
@@ -35,44 +35,5 @@
       </section>
     <!-- <section>{data}</section> -->
     </main>
-    <script>
-/*function repeat() {
-  var element = document.querySelectorAll('div.xforms-group-content');
-  for (var i = 0; i &lt; element.length; i++) {
-    if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
-      element[i].classList.add('repeat');
-      }
-    }
-  }*/
-function repeat() {
-  var element = document.querySelectorAll('div.xforms-repeat');
-  for (var i = 0; i &lt; element.length; i++) {
-    if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
-      element[i].classList.add('repeat');
-      }
-    }
-  }
-        </script>
-    <script>
-// Sticky navigation
-const nav = document.querySelector('#navigation');
-const navTop = nav.offsetTop;
-
-function stickyNavigation() {
-  console.log('navTop = ' + navTop);
-  console.log('scrollY = ' + window.scrollY);
-  if (window.scrollY >= navTop) {
-    // nav offsetHeight = height of nav
-    document.body.style.paddingTop = nav.offsetHeight + 'px';
-    document.body.classList.add('fixed-nav');
-    }
-    else {
-      document.body.style.paddingTop = 0;
-      document.body.classList.remove('fixed-nav');
-    }
-  }
-window.addEventListener('scroll', stickyNavigation);
-    </script>
-    <script src="/bio/files/js/script.js"></script>
   </body>
 </html>

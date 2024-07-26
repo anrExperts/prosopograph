@@ -1,5 +1,5 @@
 // Sticky navigation
-const nav = document.querySelector('#navigation');
+/*const nav = document.querySelector('#navigation');
 const navTop = nav.offsetTop;
 
 function stickyNavigation() {
@@ -17,4 +17,4 @@ function stickyNavigation() {
 }
 window.addEventListener('scroll', stickyNavigation);
 
-console.log("nav.js chargé")
+console.log("nav.js chargé")*/

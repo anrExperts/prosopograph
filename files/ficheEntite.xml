@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,400i|IBM+Plex+Sans+Condensed:400,400i|IBM+Plex+Sans:100,100i,400,400i,700,700i|IBM+Plex+Serif:400,400i" rel="stylesheet" />
     <link href="/bio/files/css/normalize.css" rel="stylesheet" />
     <link href="/bio/files/css/main.css" rel="stylesheet" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
-    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"/>
+    <script src="https://d3js.org/d3.v6.js"/>
   </head>
   <body>
     <nav id="navigation">
@@ -24,12 +24,13 @@
         <h2 id="title">Fiche prosopographique</h2>
         <article>{content}</article>
       </section>
-      </main>
-    <main>
-      <div id="my_dataviz"></div>
+      <section>
+        <h2>Réseau</h2>
+        <div id="my_dataviz"/>
+      </section>
     </main>
     <script>{network}</script>
-    <script src="/bio/files/js/d3networks.js"></script>
+    <script src="/bio/files/js/d3networks.js"/>
     <script src="/bio/files/js/nav.js"/>
   </body>
 </html>

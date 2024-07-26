@@ -16,42 +16,24 @@
   session:bogus="fix Firefox namespace issue">
   <head>
     <title>bio</title>
-    <meta
-      charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Application de l’ANR Experts" />
-    <link
-      href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,400i|IBM+Plex+Sans+Condensed:400,400i|IBM+Plex+Sans:100,100i,400,400i,700,700i|IBM+Plex+Serif:400,400i"
-      rel="stylesheet" />
-    <link
-      href="/bio/files/css/normalize.css"
-      rel="stylesheet" />
-    <link
-      href="/bio/files/css/main.css"
-      rel="stylesheet" />
-    <link
-      href="/bio/files/css/eacForms.css"
-      rel="stylesheet" />
-    <script src="/bio/files/js/generateid.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Mono:400,400i|IBM+Plex+Sans+Condensed:400,400i|IBM+Plex+Sans:100,100i,400,400i,700,700i|IBM+Plex+Serif:400,400i" rel="stylesheet" />
+    <link href="/bio/files/css/normalize.css" rel="stylesheet" />
+    <link href="/bio/files/css/main.css" rel="stylesheet" />
+    <link href="/bio/files/css/eacForms.css" rel="stylesheet" />
+    <script src="/bio/files/js/generateid.js"/>
+    <script src="/bio/files/js/tabs.js"/>
     <instance>{model}</instance>
   </head>
-  <body
-    onload="repeat()">
-    <nav
-      id="navigation">
+  <!--<body onload="repeat()">-->
+  <body>
+    <nav id="navigation">
+      <h1><a href="/bio">¡bio!</a></h1>
       <ul>
-        <li><a
-            href="/bio">¡bio!</a></li>
-        <li><a
-            href="/bio/biographies/view">prosopo</a></li>
-        <li><a
-            href="/bio/networks/view">dataviz</a></li>
-        <li><a
-            href="/bio/about">?</a></li>
+        <li><a href="/bio/biographies/view">prosopo</a></li>
+        <li><a href="/bio/networks/view">dataviz</a></li>
+        <li><a href="/bio/about">?</a></li>
       </ul>
     </nav>
     <trigger>{trigger}</trigger>
@@ -59,25 +41,7 @@
       <form>{form}</form>
       <section>{data}</section>
     </main>
-    <script>
-      function openKeywords() {
-        document.getElementById("keywordsControl").style.width = "100%";
-      }
-      /* Set the width of the sidebar to 0 (hide it) */
-      function closeKeywords() {
-        document.getElementById("keywordsControl").style.width = "0";
-      }
-    </script>
-    <script>
-      function repeat() {
-        var element = document.querySelectorAll('div.xforms-repeat');
-        for (var i = 0; i &lt; element.length; i++) {
-            if (element[i].querySelectorAll('div.xforms-repeat').length > 0) {
-                element[i].classList.add('repeat');
-            }
-        }
-      }
-    </script>
-    <script src="/bio/files/js/nav.js"></script>
+    <script src="/bio/files/js/xsltformsStyle.js"/>
+    <script src="/bio/files/js/nav.js"/>
   </body>
 </html>
