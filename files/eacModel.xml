@@ -22,12 +22,6 @@
 
     <xf:instance id="eacInstance" src="/bio/files/_eacInstance.xml"/>
 
-    <xf:instance id="i">
-        <data xmlns="">
-            <index>1</index>
-        </data>
-    </xf:instance>
-
     <xf:instance id="getAgent">
         <data xmlns="">
             <param>getAgent</param>
@@ -181,7 +175,10 @@
     <xf:instance id="eacPlaces">
         <description xmlns="https://archivists.org/ns/eac/v2">
             <places>
-                <place sourceReference=""/>
+                <place sourceReference="">
+                    <placeName></placeName>
+                    <placeRole></placeRole>
+                </place>
                 <descriptiveNote>
                     <p></p>
                 </descriptiveNote>
@@ -665,6 +662,8 @@
         <xf:toggle if="event('response') = 'biogHist'" case="biogHistPanel" />
         <xf:toggle if="event('response') = 'relations'" case="relationsPanel" />
         <xf:toggle if="event('response') = 'comment'" case="commentPanel" />
+        <xf:toggle if="event('response') = 'validation'" case="validationPanel" />
+        <xf:toggle if="event('response') = 'control'" case="controlPanel" />
     </xf:action>
 
     <xf:instance id="query">

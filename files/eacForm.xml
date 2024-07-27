@@ -511,7 +511,7 @@
                 </xf:label>
                 <xf:repeat nodeset="eac:nameEntry">
                     <xf:group class="isolated">
-                        <xf:label>
+                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">
                             <xf:trigger ref="self::eac:nameEntry[count(parent::eac:identity/eac:nameEntry) > 1]" class="del">
                                 <xf:label>🗑</xf:label>
                                 <xf:hint>
@@ -520,8 +520,31 @@
                                 <xf:delete nodeset="." ev:event="DOMActivate"/>
                             </xf:trigger>
                             <xf:output value="concat('Forme du nom ', if(normalize-space(string-join(eac:part))!='', concat(' (', normalize-space(string-join(eac:part, ', ')), ')'), ''))"/>
+                            <xf:trigger class="trigger">
+                                <xf:label>⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="identitySource" />
+                            </xf:trigger>
                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id=concat('elem-', name(current()))]/tei:div[@type='description']"/></xf:help>
                         </xf:label>
+                        <xf:dialog id="identitySource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="concat('Référence(s)', if(normalize-space(string-join(parent::eac:nameEntry/eac:part))!='', concat(' (', normalize-space(string-join(parent::eac:nameEntry/eac:part, ', ')), ')') , ''))"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <!--@todo Q° multiple references inside one source !-->
+                                    <xf:label>
+                                        <xf:output value="string-join(*, ', ')"/>
+                                    </xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide ev:event="DOMActivate" dialog="identitySource"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:nameEntry">
                             <xf:select1 ref="@status">
                                 <xf:label>
@@ -590,22 +613,6 @@
                                 </xf:select1>
                             </xf:repeat>
                         </xf:group>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                <xf:output value="concat(
-                                            'Référence(s)',
-                                            if(normalize-space(string-join(parent::eac:nameEntry/eac:part))!='', concat(' (', normalize-space(string-join(parent::eac:nameEntry/eac:part, ', ')), ')') , '')
-                                            )"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                            </xf:label>
-                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <!--@todo Q° multiple references inside one source !-->
-                                <xf:label>
-                                    <xf:output value="string-join(*, ', ')"/>
-                                </xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:group>
                 </xf:repeat>
             </xf:group>
@@ -660,6 +667,7 @@
                     <xf:delete nodeset="." ev:event="DOMActivate"/>
                 </xf:trigger>
                 <h2>Fonctions</h2>
+                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-functions']/tei:div[@type='description']"/></xf:help>
                 <xf:trigger class="trigger">
                     <xf:label>+</xf:label>
                     <xf:hint>Ajouter une fonction</xf:hint>
@@ -669,7 +677,6 @@
                     <xf:delete nodeset="eac:function[1]/eac:descriptiveNote" ev:event="DOMActivate"/>
                     <xf:delete nodeset="eac:function[1]/eac:placeName" ev:event="DOMActivate"/>
                 </xf:trigger>
-                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-functions']/tei:div[@type='description']"/></xf:help>
             </xf:label>
             <xf:repeat nodeset="eac:function" class="isolated">
                 <xf:label>
@@ -694,6 +701,10 @@
                     <xf:trigger ref="self::eac:function[not(eac:descriptiveNote)]" class="trigger">
                         <xf:label>🗒</xf:label>
                         <xf:insert context="." nodeset="*" at="last()" position="after" origin="instance('eacFunctions')/eac:functions/eac:function/eac:descriptiveNote" ev:event="DOMActivate"/>
+                    </xf:trigger>
+                    <xf:trigger class="trigger">
+                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                        <xf:show ev:event="DOMActivate" dialog="functionSource" />
                     </xf:trigger>
                 </xf:label>
                 <xf:dialog id="functionDatesDialog">
@@ -738,7 +749,7 @@
                         </xf:item>
                     </xf:select>
                 </xf:group>
-                <xf:group ref="self::eac:function">
+                <xf:dialog id="functionSource">
                     <xf:select ref="@sourceReference" appearance="full">
                         <xf:label>
                             <xf:output value="concat('Référence(s)', if(normalize-space(string-join(parent::eac:function/eac:term))!='', concat(' (', normalize-space(string-join(parent::eac:function/eac:term, ', ')), ')') , ''))"/>
@@ -750,7 +761,11 @@
                             <xf:value ref="@id"/>
                         </xf:itemset>
                     </xf:select>
-                </xf:group>
+                    <xf:trigger>
+                        <xf:label>Valider</xf:label>
+                        <xf:hide ev:event="DOMActivate" dialog="functionSource"/>
+                    </xf:trigger>
+                </xf:dialog>
                 <xf:group ref="eac:date">
                     <xf:label>
                         <xf:trigger class="del">
@@ -781,7 +796,27 @@
                             </xf:action>
                             <xf:delete nodeset="parent::eac:function/eac:date" ev:event="DOMActivate"/>
                         </xf:trigger>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="functionDateSource"/>
+                        </xf:trigger>
                     </xf:label>
+                    <xf:dialog id="functionDateSource">
+                        <xf:select ref="@sourceReference" appearance="full">
+                            <xf:label>
+                                <xf:output value="'Référence(s)'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                            </xf:label>
+                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                <xf:value ref="@id"/>
+                            </xf:itemset>
+                        </xf:select>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="functionDateSource" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:group ref="self::eac:date">
                         <xf:input ref="@standardDate" incremental="true">
                             <xf:label>
@@ -819,16 +854,6 @@
                                 <xf:value>uncertain</xf:value>
                             </xf:item>
                         </xf:select1>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                <xf:output value="'Référence(s)'"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                            </xf:label>
-                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:group>
                 </xf:group>
                 <xf:group ref="eac:dateRange">
@@ -852,7 +877,27 @@
                         <xf:label>
                             <xf:output value="'Date de début'"/>
                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="functionFromDateDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="functionFromDateDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="functionFromDateDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:fromDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -890,6 +935,18 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
+                        </xf:group>
+                    </xf:group>
+                    <xf:group ref="eac:toDate">
+                        <xf:label>
+                            <xf:output value="'Date de fin'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="functionToDateDateSource"/>
+                            </xf:trigger>
+                        </xf:label>
+                        <xf:dialog id="functionToDateDateSource">
                             <xf:select ref="@sourceReference" appearance="full">
                                 <xf:label>
                                     <xf:output value="'Référence(s)'"/>
@@ -900,13 +957,11 @@
                                     <xf:value ref="@id"/>
                                 </xf:itemset>
                             </xf:select>
-                        </xf:group>
-                    </xf:group>
-                    <xf:group ref="eac:toDate">
-                        <xf:label>
-                            <xf:output value="'Date de fin'"/>
-                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                        </xf:label>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="functionToDateDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:toDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -944,16 +999,6 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
-                            <xf:select ref="@sourceReference" appearance="full">
-                                <xf:label>
-                                    <xf:output value="'Référence(s)'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                </xf:label>
-                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                    <xf:value ref="@id"/>
-                                </xf:itemset>
-                            </xf:select>
                         </xf:group>
                     </xf:group>
                 </xf:group>
@@ -1001,7 +1046,27 @@
                                     </xf:action>
                                     <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                                 </xf:trigger>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="functionDateSetDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="functionDateSetDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="functionDateSetDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:date">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -1039,16 +1104,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                    </xf:label>
-                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                         <xf:group ref="self::eac:dateRange">
@@ -1064,7 +1119,27 @@
                                 <xf:label>
                                     <xf:output value="'Date de début'"/>
                                     <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="functionDateSetFromDateSource"/>
+                                    </xf:trigger>
                                 </xf:label>
+                                <xf:dialog id="functionDateSetFromDateSource">
+                                    <xf:select ref="@sourceReference" appearance="full">
+                                        <xf:label>
+                                            <xf:output value="'Référence(s)'"/>
+                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                        </xf:label>
+                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                            <xf:value ref="@id"/>
+                                        </xf:itemset>
+                                    </xf:select>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="functionDateSetFromDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:fromDate">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -1102,6 +1177,18 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
+                                </xf:group>
+                            </xf:group>
+                            <xf:group ref="eac:toDate">
+                                <xf:label>
+                                    <xf:output value="'Date de fin'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="functionDateSetToDateSource"/>
+                                    </xf:trigger>
+                                </xf:label>
+                                <xf:dialog id="functionDateSetToDateSource">
                                     <xf:select ref="@sourceReference" appearance="full">
                                         <xf:label>
                                             <xf:output value="'Référence(s)'"/>
@@ -1112,13 +1199,11 @@
                                             <xf:value ref="@id"/>
                                         </xf:itemset>
                                     </xf:select>
-                                </xf:group>
-                            </xf:group>
-                            <xf:group ref="eac:toDate">
-                                <xf:label>
-                                    <xf:output value="'Date de fin'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                                </xf:label>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="functionDateSetToDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:toDate">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -1156,16 +1241,6 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
-                                    <xf:select ref="@sourceReference" appearance="full">
-                                        <xf:label>
-                                            <xf:output value="'Référence(s)'"/>
-                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                        </xf:label>
-                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                            <xf:value ref="@id"/>
-                                        </xf:itemset>
-                                    </xf:select>
                                 </xf:group>
                             </xf:group>
                         </xf:group>
@@ -1265,7 +1340,27 @@
                         <xf:label>🗒</xf:label>
                         <xf:insert context="." nodeset="*" at="last()" position="after" origin="instance('eacOccupations')/eac:occupations/eac:occupation/eac:descriptiveNote" ev:event="DOMActivate"/>
                     </xf:trigger>
+                    <xf:trigger>
+                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                        <xf:show ev:event="DOMActivate" dialog="occupationSource"/>
+                    </xf:trigger>
                 </xf:label>
+                <xf:dialog id="occupationSource">
+                    <xf:select ref="@sourceReference" appearance="full">
+                        <xf:label>
+                            <xf:output value="'Référence(s)'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                        </xf:label>
+                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                    </xf:select>
+                    <xf:trigger>
+                        <xf:label>Valider</xf:label>
+                        <xf:hide dialog="occupationSource" ev:event="DOMActivate"/>
+                    </xf:trigger>
+                </xf:dialog>
                 <xf:dialog id="occupationDatesDialog">
                     <xf:trigger ref="self::eac:occupation[not(eac:date)][not(eac:dateRange)][not(eac:dateSet)]" class="trigger">
                         <xf:label>τ - Date simple</xf:label>
@@ -1308,19 +1403,6 @@
                         </xf:item>
                     </xf:select>
                 </xf:group>
-                <xf:group ref="self::eac:occupation">
-                    <xf:select ref="@sourceReference" appearance="full">
-                        <xf:label>
-                            <xf:output value="concat('Référence(s)', if(normalize-space(string-join(parent::eac:occupation/eac:term))!='', concat(' (', normalize-space(string-join(parent::eac:occupation/eac:term, ', ')), ')') , ''))"/>
-                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                        </xf:label>
-                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                            <!--@todo Q° multiple references inside one source !-->
-                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                            <xf:value ref="@id"/>
-                        </xf:itemset>
-                    </xf:select>
-                </xf:group>
                 <xf:group ref="eac:date">
                     <xf:label>
                         <xf:trigger class="del">
@@ -1351,7 +1433,27 @@
                             </xf:action>
                             <xf:delete nodeset="parent::eac:occupation/eac:date" ev:event="DOMActivate"/>
                         </xf:trigger>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="occupationDateSource"/>
+                        </xf:trigger>
                     </xf:label>
+                    <xf:dialog id="occupationDateSource">
+                        <xf:select ref="@sourceReference" appearance="full">
+                            <xf:label>
+                                <xf:output value="'Référence(s)'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                            </xf:label>
+                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                <xf:value ref="@id"/>
+                            </xf:itemset>
+                        </xf:select>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="occupationDateSource" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:group ref="self::eac:date">
                         <xf:input ref="@standardDate" incremental="true">
                             <xf:label>
@@ -1389,16 +1491,6 @@
                                 <xf:value>uncertain</xf:value>
                             </xf:item>
                         </xf:select1>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                <xf:output value="'Référence(s)'"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                            </xf:label>
-                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:group>
                 </xf:group>
                 <xf:group ref="eac:dateRange">
@@ -1422,7 +1514,27 @@
                         <xf:label>
                             <xf:output value="'Date de début'"/>
                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="occupationDateRangeFromDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="occupationDateRangeFromDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="occupationDateRangeFromDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:fromDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -1460,6 +1572,18 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
+                        </xf:group>
+                    </xf:group>
+                    <xf:group ref="eac:toDate">
+                        <xf:label>
+                            <xf:output value="'Date de fin'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="occupationDateRangeToDateSource"/>
+                            </xf:trigger>
+                        </xf:label>
+                        <xf:dialog id="occupationDateRangeToDateSource">
                             <xf:select ref="@sourceReference" appearance="full">
                                 <xf:label>
                                     <xf:output value="'Référence(s)'"/>
@@ -1470,13 +1594,11 @@
                                     <xf:value ref="@id"/>
                                 </xf:itemset>
                             </xf:select>
-                        </xf:group>
-                    </xf:group>
-                    <xf:group ref="eac:toDate">
-                        <xf:label>
-                            <xf:output value="'Date de fin'"/>
-                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                        </xf:label>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="occupationDateRangeToDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:toDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -1571,7 +1693,27 @@
                                     </xf:action>
                                     <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                                 </xf:trigger>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="occupationDateSetDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="occupationDateSetDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="occupationDateSetDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:date">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -1609,16 +1751,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                    </xf:label>
-                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                         <xf:group ref="self::eac:dateRange">
@@ -1634,7 +1766,27 @@
                                 <xf:label>
                                     <xf:output value="'Date de début'"/>
                                     <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="occupationDateSetFromDateSource"/>
+                                    </xf:trigger>
                                 </xf:label>
+                                <xf:dialog id="occupationDateSetFromDateSource">
+                                    <xf:select ref="@sourceReference" appearance="full">
+                                        <xf:label>
+                                            <xf:output value="'Référence(s)'"/>
+                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                        </xf:label>
+                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                            <xf:value ref="@id"/>
+                                        </xf:itemset>
+                                    </xf:select>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="occupationDateSetFromDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:fromDate">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -1672,6 +1824,18 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
+                                </xf:group>
+                            </xf:group>
+                            <xf:group ref="eac:toDate">
+                                <xf:label>
+                                    <xf:output value="'Date de fin'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="occupationDateSetToDateSource"/>
+                                    </xf:trigger>
+                                </xf:label>
+                                <xf:dialog id="occupationDateSetToDateSource">
                                     <xf:select ref="@sourceReference" appearance="full">
                                         <xf:label>
                                             <xf:output value="'Référence(s)'"/>
@@ -1682,13 +1846,11 @@
                                             <xf:value ref="@id"/>
                                         </xf:itemset>
                                     </xf:select>
-                                </xf:group>
-                            </xf:group>
-                            <xf:group ref="eac:toDate">
-                                <xf:label>
-                                    <xf:output value="'Date de fin'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                                </xf:label>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="occupationDateSetToDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:toDate">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -1726,16 +1888,6 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
-                                    <xf:select ref="@sourceReference" appearance="full">
-                                        <xf:label>
-                                            <xf:output value="'Référence(s)'"/>
-                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                        </xf:label>
-                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                            <xf:value ref="@id"/>
-                                        </xf:itemset>
-                                    </xf:select>
                                 </xf:group>
                             </xf:group>
                         </xf:group>
@@ -1840,7 +1992,8 @@
                         <xf:insert if="self::eac:place[not(eac:placeName)][not(eac:placeRole)]" context="." nodeset="*" position="before" origin="instance('eacPlace')/eac:place/eac:placeName" ev:event="DOMActivate"/>
                     </xf:trigger>
                     <xf:trigger ref="self::eac:place[not(eac:address)]" class="trigger">
-                        <xf:label><xf:output value="'+ adresse'"/></xf:label>
+                        <xf:label>📪</xf:label>
+                        <xf:hint>Ajouter une adresse.</xf:hint>
                         <xf:insert if="self::eac:place[eac:placeName or eac:placeRole][not(eac:address)]" context="." nodeset="*[self::eac:placeName or self::eac:placeRole]" at="last()" position="after" origin="instance('eacPlace')/eac:place/eac:address" ev:event="DOMActivate"/>
                         <xf:insert if="self::eac:place[not(eac:placeName)][not(eac:placeRole)][not(eac:address)]" context="." nodeset="*" position="before" origin="instance('eacPlace')/eac:place/eac:address" ev:event="DOMActivate"/>
                     </xf:trigger>
@@ -1854,7 +2007,27 @@
                         <xf:label>🗒</xf:label>
                         <xf:insert context="." nodeset="*" at="last()" position="after" origin="instance('eacPlaces')/eac:places/eac:descriptiveNote" ev:event="DOMActivate"/>
                     </xf:trigger>
+                    <xf:trigger>
+                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                        <xf:show ev:event="DOMActivate" dialog="placeSource"/>
+                    </xf:trigger>
                 </xf:label>
+                <xf:dialog id="placeSource">
+                    <xf:select ref="@sourceReference" appearance="full">
+                        <xf:label>
+                            <xf:output value="'Référence(s)'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                        </xf:label>
+                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                    </xf:select>
+                    <xf:trigger>
+                        <xf:label>Valider</xf:label>
+                        <xf:hide dialog="placeSource" ev:event="DOMActivate"/>
+                    </xf:trigger>
+                </xf:dialog>
                 <xf:dialog id="placeDatesDialog">
                     <xf:trigger ref="self::eac:place[not(eac:date)][not(eac:dateRange)][not(eac:dateSet)]" class="trigger">
                         <xf:label>τ - Date simple</xf:label>
@@ -1909,7 +2082,7 @@
                             <xf:output value="'Nom du lieu'" />
                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-placeName']/tei:div[@type='description']"/></xf:help>
                             <xf:trigger class="trigger">
-                                <xf:label>+ nom de lieu</xf:label>
+                                <xf:label>+</xf:label>
                                 <xf:insert if="parent::eac:place[eac:placeName]" context="parent::eac:place" nodeset="eac:placeName" at="index('indexPlacePlaceName')" position="after" origin="instance('eacPlace')/eac:place/eac:placeName" ev:event="DOMActivate"/>
                             </xf:trigger>
                         </xf:label>
@@ -1971,7 +2144,27 @@
                             </xf:action>
                             <xf:delete nodeset="parent::eac:place/eac:date" ev:event="DOMActivate"/>
                         </xf:trigger>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="placeDateSource"/>
+                        </xf:trigger>
                     </xf:label>
+                    <xf:dialog id="placeDateSource">
+                        <xf:select ref="@sourceReference" appearance="full">
+                            <xf:label>
+                                <xf:output value="'Référence(s)'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                            </xf:label>
+                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                <xf:value ref="@id"/>
+                            </xf:itemset>
+                        </xf:select>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="placeDateSource" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:group ref="self::eac:date">
                         <xf:input ref="@standardDate" incremental="true">
                             <xf:label>
@@ -2009,16 +2202,6 @@
                                 <xf:value>uncertain</xf:value>
                             </xf:item>
                         </xf:select1>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                <xf:output value="'Référence(s)'"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                            </xf:label>
-                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:group>
                 </xf:group>
                 <xf:group ref="eac:dateRange">
@@ -2042,7 +2225,27 @@
                         <xf:label>
                             <xf:output value="'Date de début'"/>
                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="placeDateRangeFromDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="placeDateRangeFromDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="placeDateRangeFromDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:fromDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -2080,6 +2283,18 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
+                        </xf:group>
+                    </xf:group>
+                    <xf:group ref="eac:toDate">
+                        <xf:label>
+                            <xf:output value="'Date de fin'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="placeDateRangeToDateSource"/>
+                            </xf:trigger>
+                        </xf:label>
+                        <xf:dialog id="placeDateRangeToDateSource">
                             <xf:select ref="@sourceReference" appearance="full">
                                 <xf:label>
                                     <xf:output value="'Référence(s)'"/>
@@ -2090,13 +2305,11 @@
                                     <xf:value ref="@id"/>
                                 </xf:itemset>
                             </xf:select>
-                        </xf:group>
-                    </xf:group>
-                    <xf:group ref="eac:toDate">
-                        <xf:label>
-                            <xf:output value="'Date de fin'"/>
-                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                        </xf:label>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="placeDateRangeToDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:toDate">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -2134,16 +2347,6 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
-                            <xf:select ref="@sourceReference" appearance="full">
-                                <xf:label>
-                                    <xf:output value="'Référence(s)'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                </xf:label>
-                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                    <xf:value ref="@id"/>
-                                </xf:itemset>
-                            </xf:select>
                         </xf:group>
                     </xf:group>
                 </xf:group>
@@ -2191,7 +2394,27 @@
                                     </xf:action>
                                     <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                                 </xf:trigger>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="placeDateSetDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="placeDateSetDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="placeDateSetDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:date">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -2229,16 +2452,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                    </xf:label>
-                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                         <xf:group ref="self::eac:dateRange">
@@ -2254,21 +2467,41 @@
                                 <xf:label>
                                     <xf:output value="'Date de début'"/>
                                     <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="placeDateSetFromDateSource"/>
+                                    </xf:trigger>
                                 </xf:label>
+                                <xf:dialog id="placeDateSetFromDateSource">
+                                    <xf:select ref="@sourceReference" appearance="full">
+                                        <xf:label>
+                                            <xf:output value="'Référence(s)'"/>
+                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                        </xf:label>
+                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                            <xf:value ref="@id"/>
+                                        </xf:itemset>
+                                    </xf:select>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="placeDateSetFromDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:fromDate">
                                     <xf:input ref="@standardDate" incremental="true">
-                                        <xf:label>
-                                            <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-standardDate']/tei:div[@type='fullName']" />
-                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-standardDate']/tei:div[@type='description']" /></xf:help>
-                                        </xf:label>
-                                    </xf:input>
-                                    <xf:input ref="@notBefore" incremental="true">
-                                        <xf:label>
-                                            <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notBefore']/tei:div[@type='fullName']" />
-                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notBefore']/tei:div[@type='description']" /></xf:help>
-                                        </xf:label>
-                                    </xf:input>
-                                    <xf:input ref="@notAfter" incremental="true">
+                                                <xf:label>
+                                                    <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-standardDate']/tei:div[@type='fullName']" />
+                                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-standardDate']/tei:div[@type='description']" /></xf:help>
+                                                </xf:label>
+                                            </xf:input>
+                                            <xf:input ref="@notBefore" incremental="true">
+                                                <xf:label>
+                                                    <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notBefore']/tei:div[@type='fullName']" />
+                                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notBefore']/tei:div[@type='description']" /></xf:help>
+                                                </xf:label>
+                                            </xf:input>
+                                            <xf:input ref="@notAfter" incremental="true">
                                         <xf:label>
                                             <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notAfter']/tei:div[@type='fullName']" />
                                             <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-notAfter']/tei:div[@type='description']" /></xf:help>
@@ -2292,6 +2525,18 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
+                                </xf:group>
+                            </xf:group>
+                            <xf:group ref="eac:toDate">
+                                <xf:label>
+                                    <xf:output value="'Date de fin'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="placeDateSetToDateSource"/>
+                                    </xf:trigger>
+                                </xf:label>
+                                <xf:dialog id="placeDateSetToDateSource">
                                     <xf:select ref="@sourceReference" appearance="full">
                                         <xf:label>
                                             <xf:output value="'Référence(s)'"/>
@@ -2302,13 +2547,11 @@
                                             <xf:value ref="@id"/>
                                         </xf:itemset>
                                     </xf:select>
-                                </xf:group>
-                            </xf:group>
-                            <xf:group ref="eac:toDate">
-                                <xf:label>
-                                    <xf:output value="'Date de fin'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                                </xf:label>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="placeDateSetToDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:toDate">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -2374,23 +2617,6 @@
                             </xf:label>
                         </xf:textarea>
                     </xf:repeat>
-                </xf:group>
-                <xf:group ref="self::eac:place">
-                    <xf:select ref="@sourceReference" appearance="full">
-                        <xf:label>
-                            <xf:output value="concat(
-                            instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='fullName'],
-                            ' (',
-                            instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-place']/tei:div[@type='fullName'],
-                            ')')" />
-                        </xf:label>
-                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                            <!--@todo Q° multiple references inside one source !-->
-                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                            <xf:value ref="@id"/>
-                        </xf:itemset>
-                    </xf:select>
                 </xf:group>
             </xf:repeat>
             <xf:group ref="eac:descriptiveNote">
@@ -2489,7 +2715,27 @@
                         </xf:action>
                         <xf:delete nodeset="parent::eac:existDates/eac:date" ev:event="DOMActivate"/>
                     </xf:trigger>
+                    <xf:trigger>
+                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                        <xf:show ev:event="DOMActivate" dialog="existDatesDateSource"/>
+                    </xf:trigger>
                 </xf:label>
+                <xf:dialog id="existDatesDateSource">
+                    <xf:select ref="@sourceReference" appearance="full">
+                        <xf:label>
+                            <xf:output value="'Référence(s)'"/>
+                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                        </xf:label>
+                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                            <xf:value ref="@id"/>
+                        </xf:itemset>
+                    </xf:select>
+                    <xf:trigger>
+                        <xf:label>Valider</xf:label>
+                        <xf:hide dialog="existDatesDateSource" ev:event="DOMActivate"/>
+                    </xf:trigger>
+                </xf:dialog>
                 <xf:group ref="self::eac:date">
                     <xf:input ref="@standardDate" incremental="true">
                         <xf:label>
@@ -2527,16 +2773,6 @@
                             <xf:value>uncertain</xf:value>
                         </xf:item>
                     </xf:select1>
-                    <xf:select ref="@sourceReference" appearance="full">
-                        <xf:label>
-                            <xf:output value="'Référence(s)'"/>
-                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                        </xf:label>
-                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                            <xf:value ref="@id"/>
-                        </xf:itemset>
-                    </xf:select>
                 </xf:group>
             </xf:group>
             <xf:group ref="eac:dateRange">
@@ -2563,7 +2799,27 @@
                     <xf:label>
                         <xf:output value="'Date de début'"/>
                         <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="existDatesDateRangeFromDateSource"/>
+                        </xf:trigger>
                     </xf:label>
+                    <xf:dialog id="existDatesDateRangeFromDateSource">
+                        <xf:select ref="@sourceReference" appearance="full">
+                            <xf:label>
+                                <xf:output value="'Référence(s)'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                            </xf:label>
+                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                <xf:value ref="@id"/>
+                            </xf:itemset>
+                        </xf:select>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="existDatesDateRangeFromDateSource" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:group ref="self::eac:fromDate">
                         <xf:input ref="@standardDate" incremental="true">
                             <xf:label>
@@ -2601,6 +2857,18 @@
                                 <xf:value>uncertain</xf:value>
                             </xf:item>
                         </xf:select1>
+                    </xf:group>
+                </xf:group>
+                <xf:group ref="eac:toDate">
+                    <xf:label>
+                        <xf:output value="'Date de fin'"/>
+                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="existDatesDateRangeToDateSource"/>
+                        </xf:trigger>
+                    </xf:label>
+                    <xf:dialog id="existDatesDateRangeToDateSource">
                         <xf:select ref="@sourceReference" appearance="full">
                             <xf:label>
                                 <xf:output value="'Référence(s)'"/>
@@ -2611,13 +2879,11 @@
                                 <xf:value ref="@id"/>
                             </xf:itemset>
                         </xf:select>
-                    </xf:group>
-                </xf:group>
-                <xf:group ref="eac:toDate">
-                    <xf:label>
-                        <xf:output value="'Date de fin'"/>
-                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                    </xf:label>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="existDatesDateRangeToDateSource" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:group ref="self::eac:toDate">
                         <xf:input ref="@standardDate" incremental="true">
                             <xf:label>
@@ -2714,7 +2980,27 @@
                                 </xf:action>
                                 <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                             </xf:trigger>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="existDatesDateSetDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="existDatesDateSetDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="existDatesDateSetDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:date">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -2752,16 +3038,6 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
-                            <xf:select ref="@sourceReference" appearance="full">
-                                <xf:label>
-                                    <xf:output value="'Référence(s)'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                </xf:label>
-                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                    <xf:value ref="@id"/>
-                                </xf:itemset>
-                            </xf:select>
                         </xf:group>
                     </xf:group>
                     <xf:group ref="self::eac:dateRange" class="isolated">
@@ -2778,7 +3054,27 @@
                             <xf:label>
                                 <xf:output value="'Date de début'"/>
                                 <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="existDatesDateSetFromDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="existDatesDateSetFromDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="existDatesDateSetFromDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:fromDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -2816,6 +3112,18 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
+                            </xf:group>
+                        </xf:group>
+                        <xf:group ref="eac:toDate">
+                            <xf:label>
+                                <xf:output value="'Date de fin'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="existDatesDateSetToDateSource"/>
+                                </xf:trigger>
+                            </xf:label>
+                            <xf:dialog id="existDatesDateSetToDateSource">
                                 <xf:select ref="@sourceReference" appearance="full">
                                     <xf:label>
                                         <xf:output value="'Référence(s)'"/>
@@ -2826,13 +3134,11 @@
                                         <xf:value ref="@id"/>
                                     </xf:itemset>
                                 </xf:select>
-                            </xf:group>
-                        </xf:group>
-                        <xf:group ref="eac:toDate">
-                            <xf:label>
-                                <xf:output value="'Date de fin'"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                            </xf:label>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="existDatesDateSetToDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:toDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -2870,16 +3176,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                    </xf:label>
-                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                     </xf:group>
@@ -3005,7 +3301,27 @@
                             <xf:hint>Ajouter un lieu</xf:hint>
                             <xf:insert context="." nodeset="*[self::eac:date or self::eac:dateRange or self::eac:dateSet or self::eac:event]" at="last()" position="after" origin="instance('eacChronItem')/eac:chronItem/eac:place" ev:event="DOMActivate"/>
                         </xf:trigger>
+                        <xf:trigger>
+                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                            <xf:show ev:event="DOMActivate" dialog="chronItemSource"/>
+                        </xf:trigger>
                     </xf:label>
+                    <xf:dialog id="chronItem">
+                        <xf:select ref="@sourceReference" appearance="full">
+                            <xf:label>
+                                <xf:output value="'Référence(s)'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                            </xf:label>
+                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                <xf:value ref="@id"/>
+                            </xf:itemset>
+                        </xf:select>
+                        <xf:trigger>
+                            <xf:label>Valider</xf:label>
+                            <xf:hide dialog="chronItem" ev:event="DOMActivate"/>
+                        </xf:trigger>
+                    </xf:dialog>
                     <xf:dialog id="chronItemDatesDialog">
                         <xf:trigger ref="self::eac:chronItem[not(eac:date)][not(eac:dateRange)][not(eac:dateSet)]" class="trigger">
                             <xf:label>τ - Date simple</xf:label>
@@ -3058,17 +3374,6 @@
                                 <xf:value ref="value"/>
                             </xf:itemset>
                         </xf:select1>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                Référence(s)
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                            </xf:label>
-                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <!--@todo Q° multiple references inside one source !-->
-                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:group>
 
                     <xf:group ref="eac:date">
@@ -3104,7 +3409,27 @@
                                 </xf:action>
                                 <xf:delete nodeset="parent::eac:chronItem/eac:date" ev:event="DOMActivate"/>
                             </xf:trigger>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="chronItemDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="chronItemDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="chronItemDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:date">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -3142,16 +3467,6 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
-                            <xf:select ref="@sourceReference" appearance="full">
-                                <xf:label>
-                                    <xf:output value="'Référence(s)'"/>
-                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                </xf:label>
-                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                    <xf:value ref="@id"/>
-                                </xf:itemset>
-                            </xf:select>
                         </xf:group>
                     </xf:group>
                     <xf:group ref="eac:dateRange">
@@ -3178,7 +3493,27 @@
                             <xf:label>
                                 <xf:output value="'Date de début'"/>
                                 <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="biogHistDateRangeFromDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="biogHistDateRangeFromDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="biogHistDateRangeFromDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:fromDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -3216,6 +3551,18 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
+                            </xf:group>
+                        </xf:group>
+                        <xf:group ref="eac:toDate">
+                            <xf:label>
+                                <xf:output value="'Date de fin'"/>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="biogHistDateRangeToDateSource"/>
+                                </xf:trigger>
+                            </xf:label>
+                            <xf:dialog id="biogHistDateRangeToDateSource">
                                 <xf:select ref="@sourceReference" appearance="full">
                                     <xf:label>
                                         <xf:output value="'Référence(s)'"/>
@@ -3226,13 +3573,11 @@
                                         <xf:value ref="@id"/>
                                     </xf:itemset>
                                 </xf:select>
-                            </xf:group>
-                        </xf:group>
-                        <xf:group ref="eac:toDate">
-                            <xf:label>
-                                <xf:output value="'Date de fin'"/>
-                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                            </xf:label>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="biogHistDateRangeToDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:toDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -3270,16 +3615,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                    </xf:label>
-                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                     </xf:group>
@@ -3329,7 +3664,27 @@
                                         </xf:action>
                                         <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                                     </xf:trigger>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="biogHistDateSetDateSource"/>
+                                    </xf:trigger>
                                 </xf:label>
+                                <xf:dialog id="biogHistDateSetDateSource">
+                                    <xf:select ref="@sourceReference" appearance="full">
+                                        <xf:label>
+                                            <xf:output value="'Référence(s)'"/>
+                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                        </xf:label>
+                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                            <xf:value ref="@id"/>
+                                        </xf:itemset>
+                                    </xf:select>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="biogHistDateSetDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:date">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -3367,16 +3722,6 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
-                                    <xf:select ref="@sourceReference" appearance="full">
-                                        <xf:label>
-                                            <xf:output value="'Référence(s)'"/>
-                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                        </xf:label>
-                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                            <xf:value ref="@id"/>
-                                        </xf:itemset>
-                                    </xf:select>
                                 </xf:group>
                             </xf:group>
                             <xf:group ref="self::eac:dateRange" class="isolated">
@@ -3393,7 +3738,27 @@
                                     <xf:label>
                                         <xf:output value="'Date de début'"/>
                                         <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                        <xf:trigger>
+                                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                            <xf:show ev:event="DOMActivate" dialog="biogHistDateSetFromDateSource"/>
+                                        </xf:trigger>
                                     </xf:label>
+                                    <xf:dialog id="biogHistDateSetFromDateSource">
+                                        <xf:select ref="@sourceReference" appearance="full">
+                                            <xf:label>
+                                                <xf:output value="'Référence(s)'"/>
+                                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                            </xf:label>
+                                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                                <xf:value ref="@id"/>
+                                            </xf:itemset>
+                                        </xf:select>
+                                        <xf:trigger>
+                                            <xf:label>Valider</xf:label>
+                                                <xf:hide dialog="biogHistDateSetFromDateSource" ev:event="DOMActivate"/>
+                                            </xf:trigger>
+                                    </xf:dialog>
                                     <xf:group ref="self::eac:fromDate">
                                         <xf:input ref="@standardDate" incremental="true">
                                             <xf:label>
@@ -3431,6 +3796,18 @@
                                                 <xf:value>uncertain</xf:value>
                                             </xf:item>
                                         </xf:select1>
+                                    </xf:group>
+                                </xf:group>
+                                <xf:group ref="eac:toDate">
+                                    <xf:label>
+                                        <xf:output value="'Date de fin'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
+                                        <xf:trigger>
+                                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                            <xf:show ev:event="DOMActivate" dialog="biogHistDateSetToDateSource"/>
+                                        </xf:trigger>
+                                    </xf:label>
+                                    <xf:dialog id="biogHistDateSetToDateSource">
                                         <xf:select ref="@sourceReference" appearance="full">
                                             <xf:label>
                                                 <xf:output value="'Référence(s)'"/>
@@ -3441,13 +3818,11 @@
                                                 <xf:value ref="@id"/>
                                             </xf:itemset>
                                         </xf:select>
-                                    </xf:group>
-                                </xf:group>
-                                <xf:group ref="eac:toDate">
-                                    <xf:label>
-                                        <xf:output value="'Date de fin'"/>
-                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']" /></xf:help>
-                                    </xf:label>
+                                        <xf:trigger>
+                                            <xf:label>Valider</xf:label>
+                                                <xf:hide dialog="biogHistDateSetToDateSource" ev:event="DOMActivate"/>
+                                            </xf:trigger>
+                                    </xf:dialog>
                                     <xf:group ref="self::eac:toDate">
                                         <xf:input ref="@standardDate" incremental="true">
                                             <xf:label>
@@ -3485,16 +3860,6 @@
                                                 <xf:value>uncertain</xf:value>
                                             </xf:item>
                                         </xf:select1>
-                                        <xf:select ref="@sourceReference" appearance="full">
-                                            <xf:label>
-                                                <xf:output value="'Référence(s)'"/>
-                                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
-                                            </xf:label>
-                                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
-                                                <xf:value ref="@id"/>
-                                            </xf:itemset>
-                                        </xf:select>
                                     </xf:group>
                                 </xf:group>
                             </xf:group>
@@ -3781,8 +4146,7 @@
                                 </xf:trigger>
                                 <xf:output value="'Type de relation'"/>
                                 <xf:help>
-                                    <xf:output
-                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-relationType']/tei:div[@type='description']"/>
+                                    <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-relationType']/tei:div[@type='description']"/>
                                 </xf:help>
                                 <xf:trigger class="trigger">
                                     <xf:label>+</xf:label>
@@ -3797,7 +4161,27 @@
                                     </xf:action>
                                     <xf:dispatch name="getid" targetid="entity" ev:event="DOMActivate"/>
                                 </xf:trigger>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="relationTypeSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="relationTypeSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="relationTypeSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:itemset ref="instance('relationTypes')/type">
                                 <xf:label>
                                     <xf:output
@@ -3839,40 +4223,19 @@
                                 </xf:help>
                             </xf:label>
                         </xf:input>
-                        <xf:select ref="@sourceReference" appearance="full">
-                            <xf:label>
-                                <xf:output
-                                        value="concat('Référence(s)', if(normalize-space(parent::eac:relationType/following-sibling::*[1][self::eac:targetRole])!='', concat(' (', normalize-space(parent::eac:relationType/following-sibling::*[1][self::eac:targetRole]), ')') , ''))"/>
-                                <xf:help>
-                                    <xf:output
-                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                </xf:help>
-                            </xf:label>
-                            <xf:itemset
-                                    ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                <!--@todo Q° multiple references inside one source !-->
-                                <xf:label>
-                                    <xf:output value="string-join(*, ', ')"/>
-                                </xf:label>
-                                <xf:value ref="@id"/>
-                            </xf:itemset>
-                        </xf:select>
                     </xf:repeat>
                     <xf:group ref="eac:date">
                         <xf:label>
                             <xf:trigger class="del">
                                 <xf:label>🗑</xf:label>
                                 <xf:hint>
-                                    <xf:output
-                                            value="concat('Supprimer une date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'], ')'), ''))"/>
+                                    <xf:output value="concat('Supprimer une date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'], ')'), ''))"/>
                                 </xf:hint>
                                 <xf:delete nodeset="." ev:event="DOMActivate"/>
                             </xf:trigger>
-                            <xf:output
-                                    value="concat('Date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'][.!=''], ')'), ''))"/>
+                            <xf:output value="concat('Date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'][.!=''], ')'), ''))"/>
                             <xf:help>
-                                <xf:output
-                                        value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-date']/tei:div[@type='description']"/>
+                                <xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-date']/tei:div[@type='description']"/>
                             </xf:help>
                             <xf:trigger>
                                 <!--↺-->
@@ -3909,7 +4272,27 @@
                                 </xf:action>
                                 <xf:delete nodeset="parent::eac:chronItem/eac:date" ev:event="DOMActivate"/>
                             </xf:trigger>
+                            <xf:trigger>
+                                <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                <xf:show ev:event="DOMActivate" dialog="relationDateSource"/>
+                            </xf:trigger>
                         </xf:label>
+                        <xf:dialog id="relationDateSource">
+                            <xf:select ref="@sourceReference" appearance="full">
+                                <xf:label>
+                                    <xf:output value="'Référence(s)'"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                </xf:label>
+                                <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                    <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                    <xf:value ref="@id"/>
+                                </xf:itemset>
+                            </xf:select>
+                            <xf:trigger>
+                                <xf:label>Valider</xf:label>
+                                <xf:hide dialog="relationDateSource" ev:event="DOMActivate"/>
+                            </xf:trigger>
+                        </xf:dialog>
                         <xf:group ref="self::eac:date">
                             <xf:input ref="@standardDate" incremental="true">
                                 <xf:label>
@@ -3962,22 +4345,6 @@
                                     <xf:value>uncertain</xf:value>
                                 </xf:item>
                             </xf:select1>
-                            <xf:select ref="@sourceReference" appearance="full">
-                                <xf:label>
-                                    <xf:output value="'Référence(s)'"/>
-                                    <xf:help>
-                                        <xf:output
-                                                value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                    </xf:help>
-                                </xf:label>
-                                <xf:itemset
-                                        ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                    <xf:label>
-                                        <xf:output value="string-join(*, ', ')"/>
-                                    </xf:label>
-                                    <xf:value ref="@id"/>
-                                </xf:itemset>
-                            </xf:select>
                         </xf:group>
                     </xf:group>
                     <xf:group ref="eac:dateRange">
@@ -4010,11 +4377,28 @@
                         <xf:group ref="eac:fromDate" class="isolated">
                             <xf:label>
                                 <xf:output value="'Date de début'"/>
-                                <xf:help>
-                                    <xf:output
-                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/>
-                                </xf:help>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="relationDateRangeFromDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="relationDateRangeFromDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="relationDateRangeFromDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:fromDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -4067,32 +4451,33 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help>
-                                            <xf:output
-                                                    value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                        </xf:help>
-                                    </xf:label>
-                                    <xf:itemset
-                                            ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label>
-                                            <xf:output value="string-join(*, ', ')"/>
-                                        </xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                         <xf:group ref="eac:toDate">
                             <xf:label>
                                 <xf:output value="'Date de fin'"/>
-                                <xf:help>
-                                    <xf:output
-                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/>
-                                </xf:help>
+                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/></xf:help>
+                                <xf:trigger>
+                                    <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                    <xf:show ev:event="DOMActivate" dialog="relationDateRangeToDateSource"/>
+                                </xf:trigger>
                             </xf:label>
+                            <xf:dialog id="relationDateRangeToDateSource">
+                                <xf:select ref="@sourceReference" appearance="full">
+                                    <xf:label>
+                                        <xf:output value="'Référence(s)'"/>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                    </xf:label>
+                                    <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                        <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                        <xf:value ref="@id"/>
+                                    </xf:itemset>
+                                </xf:select>
+                                <xf:trigger>
+                                    <xf:label>Valider</xf:label>
+                                    <xf:hide dialog="relationDateRangeToDateSource" ev:event="DOMActivate"/>
+                                </xf:trigger>
+                            </xf:dialog>
                             <xf:group ref="self::eac:toDate">
                                 <xf:input ref="@standardDate" incremental="true">
                                     <xf:label>
@@ -4145,22 +4530,6 @@
                                         <xf:value>uncertain</xf:value>
                                     </xf:item>
                                 </xf:select1>
-                                <xf:select ref="@sourceReference" appearance="full">
-                                    <xf:label>
-                                        <xf:output value="'Référence(s)'"/>
-                                        <xf:help>
-                                            <xf:output
-                                                    value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                        </xf:help>
-                                    </xf:label>
-                                    <xf:itemset
-                                            ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                        <xf:label>
-                                            <xf:output value="string-join(*, ', ')"/>
-                                        </xf:label>
-                                        <xf:value ref="@id"/>
-                                    </xf:itemset>
-                                </xf:select>
                             </xf:group>
                         </xf:group>
                     </xf:group>
@@ -4200,18 +4569,10 @@
                                 <xf:label>
                                     <xf:trigger class="del">
                                         <xf:label>🗑</xf:label>
-                                        <xf:hint>
-                                            <xf:output
-                                                    value="concat('Supprimer une date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'], ')'), ''))"/>
-                                        </xf:hint>
                                         <xf:delete nodeset="." ev:event="DOMActivate"/>
                                     </xf:trigger>
-                                    <xf:output
-                                            value="concat('Date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'][.!=''], ')'), ''))"/>
-                                    <xf:help>
-                                        <xf:output
-                                                value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-date']/tei:div[@type='description']"/>
-                                    </xf:help>
+                                    <xf:output value="concat('Date', if(normalize-space(@*[local-name()!='certainty'])!='', concat(' (', @*[local-name()!='certainty'][.!=''], ')'), ''))"/>
+                                    <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-date']/tei:div[@type='description']"/></xf:help>
                                     <xf:trigger>
                                         <!--↺-->
                                         <xf:label>
@@ -4236,7 +4597,27 @@
                                         </xf:action>
                                         <xf:delete nodeset="parent::eac:dateSet/eac:date" ev:event="DOMActivate"/>
                                     </xf:trigger>
+                                    <xf:trigger>
+                                        <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                        <xf:show ev:event="DOMActivate" dialog="relationDateSetDateSource"/>
+                                    </xf:trigger>
                                 </xf:label>
+                                <xf:dialog id="relationDateSetDateSource">
+                                    <xf:select ref="@sourceReference" appearance="full">
+                                        <xf:label>
+                                            <xf:output value="'Référence(s)'"/>
+                                            <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                        </xf:label>
+                                        <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                            <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                            <xf:value ref="@id"/>
+                                        </xf:itemset>
+                                    </xf:select>
+                                    <xf:trigger>
+                                        <xf:label>Valider</xf:label>
+                                        <xf:hide dialog="relationDateSetDateSource" ev:event="DOMActivate"/>
+                                    </xf:trigger>
+                                </xf:dialog>
                                 <xf:group ref="self::eac:date">
                                     <xf:input ref="@standardDate" incremental="true">
                                         <xf:label>
@@ -4289,22 +4670,6 @@
                                             <xf:value>uncertain</xf:value>
                                         </xf:item>
                                     </xf:select1>
-                                    <xf:select ref="@sourceReference" appearance="full">
-                                        <xf:label>
-                                            <xf:output value="'Référence(s)'"/>
-                                            <xf:help>
-                                                <xf:output
-                                                        value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                            </xf:help>
-                                        </xf:label>
-                                        <xf:itemset
-                                                ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                            <xf:label>
-                                                <xf:output value="string-join(*, ', ')"/>
-                                            </xf:label>
-                                            <xf:value ref="@id"/>
-                                        </xf:itemset>
-                                    </xf:select>
                                 </xf:group>
                             </xf:group>
                             <xf:group ref="self::eac:dateRange" class="isolated">
@@ -4325,11 +4690,28 @@
                                 <xf:group ref="eac:fromDate" class="isolated">
                                     <xf:label>
                                         <xf:output value="'Date de début'"/>
-                                        <xf:help>
-                                            <xf:output
-                                                    value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/>
-                                        </xf:help>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/></xf:help>
+                                        <xf:trigger>
+                                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                            <xf:show ev:event="DOMActivate" dialog="relationDateSetFromDateSource"/>
+                                        </xf:trigger>
                                     </xf:label>
+                                    <xf:dialog id="relationDateSetFromDateSource">
+                                        <xf:select ref="@sourceReference" appearance="full">
+                                            <xf:label>
+                                                <xf:output value="'Référence(s)'"/>
+                                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                            </xf:label>
+                                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                                <xf:value ref="@id"/>
+                                            </xf:itemset>
+                                        </xf:select>
+                                        <xf:trigger>
+                                            <xf:label>Valider</xf:label>
+                                            <xf:hide dialog="relationDateSetFromDateSource" ev:event="DOMActivate"/>
+                                        </xf:trigger>
+                                    </xf:dialog>
                                     <xf:group ref="self::eac:fromDate">
                                         <xf:input ref="@standardDate" incremental="true">
                                             <xf:label>
@@ -4382,32 +4764,33 @@
                                                 <xf:value>uncertain</xf:value>
                                             </xf:item>
                                         </xf:select1>
-                                        <xf:select ref="@sourceReference" appearance="full">
-                                            <xf:label>
-                                                <xf:output value="'Référence(s)'"/>
-                                                <xf:help>
-                                                    <xf:output
-                                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                                </xf:help>
-                                            </xf:label>
-                                            <xf:itemset
-                                                    ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                                <xf:label>
-                                                    <xf:output value="string-join(*, ', ')"/>
-                                                </xf:label>
-                                                <xf:value ref="@id"/>
-                                            </xf:itemset>
-                                        </xf:select>
                                     </xf:group>
                                 </xf:group>
                                 <xf:group ref="eac:toDate">
                                     <xf:label>
                                         <xf:output value="'Date de fin'"/>
-                                        <xf:help>
-                                            <xf:output
-                                                    value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/>
-                                        </xf:help>
+                                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-fromDate']/tei:div[@type='description']"/></xf:help>
+                                        <xf:trigger>
+                                            <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
+                                            <xf:show ev:event="DOMActivate" dialog="relationDateSetToDateSource"/>
+                                        </xf:trigger>
                                     </xf:label>
+                                    <xf:dialog id="relationDateSetToDateSource">
+                                        <xf:select ref="@sourceReference" appearance="full">
+                                            <xf:label>
+                                                <xf:output value="'Référence(s)'"/>
+                                                <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/></xf:help>
+                                            </xf:label>
+                                            <xf:itemset ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
+                                                <xf:label><xf:output value="string-join(*, ', ')" /></xf:label>
+                                                <xf:value ref="@id"/>
+                                            </xf:itemset>
+                                        </xf:select>
+                                        <xf:trigger>
+                                            <xf:label>Valider</xf:label>
+                                            <xf:hide dialog="relationDateSetToDateSource" ev:event="DOMActivate"/>
+                                        </xf:trigger>
+                                    </xf:dialog>
                                     <xf:group ref="self::eac:toDate">
                                         <xf:input ref="@standardDate" incremental="true">
                                             <xf:label>
@@ -4460,22 +4843,6 @@
                                                 <xf:value>uncertain</xf:value>
                                             </xf:item>
                                         </xf:select1>
-                                        <xf:select ref="@sourceReference" appearance="full">
-                                            <xf:label>
-                                                <xf:output value="'Référence(s)'"/>
-                                                <xf:help>
-                                                    <xf:output
-                                                            value="instance('documentation')/tei:text/tei:body/tei:div[@type='attributes']/tei:div[@xml:id='attr-sourceReference']/tei:div[@type='description']"/>
-                                                </xf:help>
-                                            </xf:label>
-                                            <xf:itemset
-                                                    ref="instance('eacInstance')/eac:control/eac:sources/eac:source[@id!=''][normalize-space(.)!='']">
-                                                <xf:label>
-                                                    <xf:output value="string-join(*, ', ')"/>
-                                                </xf:label>
-                                                <xf:value ref="@id"/>
-                                            </xf:itemset>
-                                        </xf:select>
                                     </xf:group>
                                 </xf:group>
                             </xf:group>
@@ -4577,18 +4944,6 @@
             <xf:label>Valider</xf:label>
         </xf:submit>
     </xf:dialog>
-
-    <xf:group ref="instance('i')/index">
-        <xf:label>instance i</xf:label>
-        <xf:output value="."/>
-        <xf:action ev:event="keydown" ev:defaultAction="cancel">
-            <xf:setvalue ref="instance('i')/index" value=". - 1"
-                      if="event('key')='PageUp' or event('key')='ArrowLeft'"/>
-            <xf:setvalue ref="instance('i')/index" value=". + 1"
-                      if="event('key')='PageDown' or event('key')='ArrowRight'"/>
-        </xf:action>
-    </xf:group>
-
 
     <!--<xf:repeat id="srch" nodeset="instance('isearch')/search">
         <xf:input ref="." incremental="true" delay="500">

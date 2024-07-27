@@ -9,6 +9,8 @@ function KeyPress(e) {
     if (evtobj.key == 7 && evtobj.ctrlKey) var toogle = 'biogHist';
     if (evtobj.key == 8 && evtobj.ctrlKey) var toogle = 'relations';
     if (evtobj.key == 9 && evtobj.ctrlKey) var toogle = 'comment';
+    if (evtobj.key == ']' && evtobj.ctrlKey) var toogle = 'validation';
+    if (evtobj.key == '[' && evtobj.ctrlKey) var toogle = 'control';
 
     XsltForms_xmlevents.dispatch(document.getElementById("entity"), "callbackKeydown", null, null, null, null, { response: toogle });
 }

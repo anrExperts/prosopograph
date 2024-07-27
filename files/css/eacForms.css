@@ -186,3 +186,7 @@ input[readonly] {
     background-color: lightgray;
     color: gray;
 }
+
+.sourced {
+    border-bottom: 5px solid var(--color-teal);
+}
