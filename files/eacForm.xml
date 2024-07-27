@@ -4577,6 +4577,19 @@
             <xf:label>Valider</xf:label>
         </xf:submit>
     </xf:dialog>
+
+    <xf:group ref="instance('i')/index">
+        <xf:label>instance i</xf:label>
+        <xf:output value="."/>
+        <xf:action ev:event="keydown" ev:defaultAction="cancel">
+            <xf:setvalue ref="instance('i')/index" value=". - 1"
+                      if="event('key')='PageUp' or event('key')='ArrowLeft'"/>
+            <xf:setvalue ref="instance('i')/index" value=". + 1"
+                      if="event('key')='PageDown' or event('key')='ArrowRight'"/>
+        </xf:action>
+    </xf:group>
+
+
     <!--<xf:repeat id="srch" nodeset="instance('isearch')/search">
         <xf:input ref="." incremental="true" delay="500">
             <xf:label>Subject : </xf:label>
