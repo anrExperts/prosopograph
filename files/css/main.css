@@ -66,7 +66,13 @@
     --color-purple-1: rgb(var(--rgb-purple-1));
     --color-pink-1: rgb(var(--rgb-pink-1));
 
+    --mainFont : verdana;
     font-size: 1.125em; /* 18px */
+
+}
+
+body {
+    font-family: var(--mainFont);
 }
 
 body main {
@@ -94,8 +100,7 @@ body main {
     position: relative;
     margin: 0 0 0 0.5em;
     align-self: center;
-    padding: 0.1em;
-    font-family: var(--mainFont);
+    padding: 0.1em;;
     font-size: 1.2em;
     color: light-dark(var(--color-light-white), var(--color-pink-1));
     display: flex;
@@ -217,8 +222,8 @@ textarea {
     font: 1em 'IBM Plex Serif';
 
     /* To harmonize the look & feel of text field border */
-    border-radius: 0.1em;
-    border: 1px solid var(--colorMain);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-light-grey);
     padding-left: 0.3em;
     width: 100%;
 }
@@ -245,14 +250,14 @@ select {
     font-size: 1em;
     width: 100%;
     height: calc(var(--baseline)* 1.1rem);
-    border-radius: 0.1em;
+    border-radius: var(--radius);
     border: 1px solid var(--color-light-grey);
     /* needed */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     /* SVG background image */
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(231, 62, 13)'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(229, 115, 115)'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
     background-size: 0.75em;
     background-position: calc(100% - 0.75em) center;
     background-repeat: no-repeat;
@@ -267,6 +272,12 @@ input:invalid {
 
 input:focus.xforms-valid {
     outline: none;
+}
+
+form xforms-input[xf-invalid]:not([xf-required]) > xforms-body > input,
+form xforms-input[xf-invalid][xf-required] > xforms-body > input,
+form xforms-textarea[xf-invalid]:not([xf-required]) > xforms-body > textarea {
+    background-color: rgba(var(--rgb-light-red), .6);
 }
 
 
@@ -342,7 +353,13 @@ ul#list li:nth-child(odd):hover {
     content: '∞ ';
 }
 
-.invalid:after {
+.invalid:after,
+form xforms-input:not([xf-required])[xf-invalid] > xforms-label::after {
     content: "\2716";
-    color: red;
+    color: var(--color-light-red);
+}
+
+form xforms-input[xf-bound][xf-required][xf-invalid] > xforms-label::after {
+    content: "*\2716";
+    color: var(--color-light-red);
 }

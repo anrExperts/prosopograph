@@ -548,11 +548,11 @@
                             <xf:delete nodeset="." ev:event="DOMActivate"/>
                         </xf:trigger>
                         <xf:output value="concat('Forme du nom ', if(normalize-space(string-join(eac:part))!='', concat(' (', normalize-space(string-join(eac:part, ', ')), ')'), ''))"/>
+                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id=concat('elem-', name(current()))]/tei:div[@type='description']"/></xf:help>
                         <xf:trigger class="trigger">
                             <xf:label class="{if(normalize-space(@sourceReference) != '', 'sourced', '')}">⌘</xf:label>
                             <xf:show ev:event="DOMActivate" dialog="identitySource" />
                         </xf:trigger>
-                        <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id=concat('elem-', name(current()))]/tei:div[@type='description']"/></xf:help>
                     </xf:label>
                     <xf:dialog id="identitySource">
                         <xf:select ref="@sourceReference" appearance="full">
@@ -709,7 +709,7 @@
                     </xf:trigger>
                     <h3><xf:output value="concat('Fonction', if(normalize-space(eac:term)!='', concat(' (', eac:term, ')'), ''))"/></h3>
                     <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-function']/tei:div[@type='description']"/></xf:help>
-                    <xf:trigger>
+                    <xf:trigger ref="self::eac:function[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                         <xf:label>📅</xf:label>
                         <xf:action ev:event="DOMActivate">
                             <xf:show dialog="functionDatesDialog"/>
@@ -1348,7 +1348,7 @@
                     </xf:trigger>
                     <h3><xf:output value="concat('Profession', if(normalize-space(eac:term)!='', concat(' (', eac:term, ')'), ''))"/></h3>
                     <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-occupation']/tei:div[@type='description']"/></xf:help>
-                    <xf:trigger>
+                    <xf:trigger ref="self::eac:occupation[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                         <xf:label>📅</xf:label>
                         <xf:action ev:event="DOMActivate">
                             <xf:show dialog="occupationDatesDialog"/>
@@ -2026,7 +2026,7 @@
                         <xf:insert if="self::eac:place[eac:placeName or eac:placeRole][not(eac:address)]" context="." nodeset="*[self::eac:placeName or self::eac:placeRole]" at="last()" position="after" origin="instance('eacPlace')/eac:place/eac:address" ev:event="DOMActivate"/>
                         <xf:insert if="self::eac:place[not(eac:placeName)][not(eac:placeRole)][not(eac:address)]" context="." nodeset="*" position="before" origin="instance('eacPlace')/eac:place/eac:address" ev:event="DOMActivate"/>
                     </xf:trigger>
-                    <xf:trigger>
+                    <xf:trigger ref="self::eac:place[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                         <xf:label>📅</xf:label>
                         <xf:action ev:event="DOMActivate">
                             <xf:show dialog="placeDatesDialog"/>
@@ -2675,7 +2675,7 @@
                 </xf:trigger>
                 <xf:output value="'Dates d’existence'"/>
                 <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-existDates']/tei:div[@type='description']"/></xf:help>
-                <xf:trigger>
+                <xf:trigger ref="self::eac:existDates[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                     <xf:label>📅</xf:label>
                     <xf:action ev:event="DOMActivate">
                         <xf:show dialog="existDatesDialog"/>
@@ -3313,7 +3313,7 @@
                         </xf:trigger>
                         <xf:output value="concat('Évènement ', if(normalize-space(eac:event)!='', concat(' (', eac:event, ')'), ''), ' ')" />
                         <xf:help><xf:output value="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-chronItem']/tei:div[@type='description']"/></xf:help>
-                        <xf:trigger>
+                        <xf:trigger ref="self::eac:chronItem[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                             <xf:label>📅</xf:label>
                             <xf:action ev:event="DOMActivate">
                                 <xf:show dialog="chronItemDatesDialog"/>
@@ -3994,7 +3994,7 @@
                         <xf:label class="{if(normalize-space(@target) != '', 'targeted', '')}">🎯</xf:label>
                         <xf:show ev:event="DOMActivate" dialog="relationTarget"/>
                     </xf:trigger>
-                    <xf:trigger>
+                    <xf:trigger ref="self::eac:relation[not(eac:date) and not(eac:dateRange) and not(eac:dateSet)]" class="trigger">
                         <xf:label>📅</xf:label>
                         <xf:action ev:event="DOMActivate">
                             <xf:show dialog="relationDatesDialog"/>

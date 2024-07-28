@@ -25,6 +25,15 @@ xforms-label xforms-trigger button {
     vertical-align: middle;
 }
 
+button {
+    background-color: inherit;
+    border: 3px solid var(--color-teal);
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 xforms-repeat + xforms-trigger[xf-bound] {
     margin-bottom: 2em;
 }
