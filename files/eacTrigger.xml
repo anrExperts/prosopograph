@@ -52,4 +52,26 @@
         <xf:label ref="instance('documentation')/tei:text/tei:body/tei:div[@type='elements']/tei:div[@xml:id='elem-control']/tei:div[@type='fullName']"/>
         <xf:toggle case="controlPanel" ev:event="DOMActivate" />
     </xf:trigger>
+    <xf:trigger class="tab">
+        <xf:label>💾</xf:label>
+        <xf:action ev:event="DOMActivate">
+            <!-- @maintenanceStatus -->
+            <xf:setvalue if="eac:control/@maintenanceStatus = 'new'" ref="eac:control/@maintenanceStatus" value="'revised'"/>
+            <xf:setvalue if="eac:control/@maintenanceStatus = ''" ref="eac:control/@maintenanceStatus" value="'new'"/>
+
+            <!-- agent -->
+            <xf:setvalue ref="eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/eac:agent" value="instance('getAgent')/agent"/>
+
+            <!-- @agentType -->
+            <xf:setvalue ref="eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/eac:agent/@agentType" value="'human'"/>
+
+            <!-- @maintenanceEventType -->
+            <xf:setvalue if="count(eac:control/eac:maintenanceHistory/eac:maintenanceEvent) > 1" ref="eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/@maintenanceEventType" value="'revised'"/>
+            <xf:setvalue if="count(eac:control/eac:maintenanceHistory/eac:maintenanceEvent) = 1" ref="eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/@maintenanceEventType" value="'created'"/>
+
+            <!-- eventDateTime -->
+            <xf:setvalue ref="eac:control/eac:maintenanceHistory/eac:maintenanceEvent[1]/eac:eventDateTime/@standardDateTime" value="now()"/>
+        </xf:action>
+        <xf:show dialog="control" ev:event="DOMActivate"/>
+    </xf:trigger>
 </nav>

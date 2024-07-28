@@ -160,10 +160,12 @@ xforms-repeat[xf-bound] + xforms-trigger,
     margin-top: 3em;
 }*/
 
-.isolated,
-xforms-repeat.isolated > xforms-repeat-item,
-xforms-repeat[xf-ref='self::eac:dateSet/*'] > xforms-repeat-item:not(:last-of-type) > xforms-group[xf-bound] {
+xforms-repeat > xforms-repeat-item:not(:last-of-type) .separator {
     margin-bottom: 3em;
+}
+
+xforms-repeat[xf-ref='self::eac:dateSet/*'][xf-bound] > xforms-repeat-item:not(:last-of-type) {
+    margin-bottom: 2.5em;
 }
 
 xforms-label h2,
@@ -187,6 +189,7 @@ input[readonly] {
     color: gray;
 }
 
-.sourced {
+.sourced,
+.targeted {
     border-bottom: 5px solid var(--color-teal);
 }

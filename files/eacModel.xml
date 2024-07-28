@@ -678,7 +678,13 @@
         <xf:resource value="concat('/bio/search/',instance('query'))"/>
     </xf:submission>
 
-    
+
+    <xf:setfocus control="sourcesNotes" ev:event="focusToSourcesNotes"/>
+    <xf:setfocus control="identityNotes" ev:event="focusToIdentityNotes"/>
+    <xf:setfocus control="existDatesNotes" ev:event="focusToExistDatesNotes"/>
+    <xf:setfocus control="placesNotes" ev:event="focusToPlacesNotes"/>
+
+
     <!--<xf:submission id="s1" method="get" replace="instance" instance="iresults" serialization="none" mode="synchronous" mediatype="application/javascript">
         <xf:resource value="concat('http://en.wikipedia.org/w/api.php?action=opensearch&amp;format=json&amp;search=',instance('isearch')/search)"/>
     </xf:submission>-->
