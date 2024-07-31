@@ -8,10 +8,11 @@ BiographiX is a web app for prosopographical and biographical data made with Bas
 @todo
 
 ### Dépendances
-- BaseX > `9`
-- XSLTForms > `1.6`
+- BaseX > `11`
+- XSLTForms > `1.7`
 
 ### Installation
-- Cloner le répertoire et le placer dans le répertoire `webapp` de BaseX
-- Lancer BaseX avec le script d’exécution `bin/basexhttp`
-- Accéder à l’application sur le localhost de basexhttp
+- Cloner le répertoire et le placer dans le répertoire `webapp` de BaseX ;
+- Lancer BaseX avec le script d’exécution `bin/basexhttp` ;
+- Accéder à [http://localhost/bio/install](http://localhost/bio/install) pour installer la base de données BiographiX ;
+- Puis, à [http://localhost/bio/biographies/view](http://localhost/bio/biographies/view) pour commencer à saisir des données.
