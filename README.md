@@ -1,7 +1,7 @@
-# BiographiX
-BiographiX est une application web pour les données prosopographiques et biographiques réalisée avec BaseX et fondée sur la format XML EAC-CPF.
+# Prosopograph
+Prosopograph est une application web pour les données prosopographiques et biographiques réalisée avec BaseX et fondée sur la format XML EAC-CPF.
 
-BiographiX is a web app for prosopographical and biographical data made with BaseX and based on XML EAC-CPF format.
+Prosopograph is a web app for prosopographical and biographical data made with BaseX and based on XML EAC-CPF format.
 
 ## Documentation
 ### Licence
