@@ -1,11 +1,17 @@
 # Prosopograph
-Prosopograph est une application web pour les données prosopographiques et biographiques réalisée avec BaseX et fondée sur la format XML EAC-CPF.
 
-Prosopograph is a web app for prosopographical and biographical data made with BaseX and based on XML EAC-CPF format.
+Prosopograph est une application web pour la production de données prosopographiques et biographiques fondée sur le format archivistique XML EAC-CPF.
+
+L’application est développée avec [XForms](https://www.w3.org/TR/xforms11/) et fonctionne avec la base de données XML libre et open source [BaseX](https://basex.org).
+
+Prosopograph is a web application for producing prosopographical and biographical data based on the archival XML format EAC-CPF.
+
+The application is developed using XForms and runs on the free and open-source XML database BaseX.
 
 ## Documentation
+
 ### Licence
-@todo
+GNU GPL 3
 
 ### Dépendances
 - BaseX > `11`
